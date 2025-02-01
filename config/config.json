@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "root",
+    "password": "Masterkey0810@",
+    "database": "boulangerie",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": "Masterkey0810@",
+    "database": "boulangerie",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": "Masterkey0810@",
+    "database": "boulangerie",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}
