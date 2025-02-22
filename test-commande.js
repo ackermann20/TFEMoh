@@ -7,10 +7,10 @@ const { Commande, Utilisateur } = require('./models');
 
     // Créer un utilisateur fictif
     const utilisateur = await Utilisateur.create({
-      nom: 'Doe',
-      prenom: 'John',
-      email: 'john.doe@example.com',
-      telephone: '1234567890',
+      nom: 'Hasard',
+      prenom: 'Eden',
+      email: 'EH10@pro.com',
+      telephone: '0498989898',
       motDePasse: 'password123',
       role: 'client',
     });

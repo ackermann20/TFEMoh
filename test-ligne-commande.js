@@ -6,11 +6,11 @@ async function testLigneCommande() {
 
     // Crée un utilisateur
     const utilisateur = await Utilisateur.create({
-      nom: 'Dupont',
-      prenom: 'Jean',
-      email: 'jean.dupont@example.com',
-      telephone: '123456789',
-      motDePasse: 'password123',
+      nom: 'azerty',
+      prenom: 'azerty',
+      email: 'azerty@azerty.com',
+      telephone: '0478965441',
+      motDePasse: 'azerty',
       role: 'client',
     });
 

@@ -6,10 +6,10 @@ async function testLigneCommandeGarniture() {
 
     // Crée un utilisateur
     const utilisateur = await Utilisateur.create({
-      nom: 'Dupont',
-      prenom: 'Jean',
-      email: 'jean.dupont@example.com',
-      telephone: '123456789',
+      nom: 'Jordan',
+      prenom: 'Michael',
+      email: 'MJ@nba.com',
+      telephone: '555298298',
       motDePasse: 'password123',
       role: 'client',
     });
