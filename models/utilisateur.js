@@ -27,11 +27,23 @@ module.exports = (sequelize, DataTypes) => {
     prenom: DataTypes.STRING,
     email: DataTypes.STRING,
     telephone: DataTypes.STRING,
-    motDePasse: DataTypes.STRING,
-    role: DataTypes.STRING
-  }, {
+    motDePasse: {
+      type: DataTypes.STRING,
+      field: 'motDePasse'
+    },
+    
+    role: DataTypes.STRING,
+    solde: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      defaultValue: 0
+    }
+
+  },
+   {
     sequelize,
     modelName: 'Utilisateur',
+    tableName: 'utilisateurs',
   });
   return Utilisateur;
 };

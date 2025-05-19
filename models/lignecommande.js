@@ -16,6 +16,11 @@ module.exports = (sequelize, DataTypes) => {
         as: 'commande',
       });
 
+      LigneCommande.hasMany(models.LigneCommandeGarniture, {
+        foreignKey: 'ligneCommandeId',
+        as: 'ligneGarnitures',
+      });
+
       // Relation avec Produit
       LigneCommande.belongsTo(models.Produit, {
         foreignKey: 'produitId',
@@ -37,6 +42,13 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: 1,
     },
+    prixUnitaire: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      defaultValue: 0
+    }
+    
+    
   }, {
     sequelize,
     modelName: 'LigneCommande',

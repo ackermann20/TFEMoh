@@ -1,3 +1,6 @@
+// Assurez-vous que tous les modèles sont bien définis et exportés dans models/index.js
+// Voici comment votre fichier index.js devrait être structuré :
+
 'use strict';
 
 const fs = require('fs');
@@ -39,5 +42,8 @@ Object.keys(db).forEach(modelName => {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+
+// Vérification de l'existence des modèles
+console.log("Modèles disponibles :", Object.keys(db));
 
 module.exports = db;

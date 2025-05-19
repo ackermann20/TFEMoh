@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const { sequelize } = require('./models');
 
@@ -8,16 +9,18 @@ const commandesRoutes = require('./routes/commandesRoutes');
 const ligneCommandesRoutes = require('./routes/ligneCommandesRoutes');
 const ligneCommandeGarnitureRoutes = require('./routes/ligneCommandeGarnituresRoutes');
 const garnituresRoutes = require('./routes/garnituresRoutes');
-const sandwichRoutes = require('./routes/sandwichsRoutes');
-const boissonRoutes = require('./routes/boissonsRoutes');
 const favorisRoutes = require('./routes/favorisRoutes');
 const plaintesRoutes = require('./routes/plaintesRoutes');
+const authRoutes = require('./routes/auth');
+const boulangerRoutes = require('./routes/boulangerRoutes');
 
 const app = express();
 const PORT = 3000;
 
 // Middleware
+app.use(cors());
 app.use(bodyParser.json());
+app.use('/uploads', express.static('uploads'));
 
 // Test de la connexion à la base de données
 sequelize.authenticate()
@@ -25,17 +28,16 @@ sequelize.authenticate()
     .catch(err => console.error('Impossible de se connecter à la base de données :', err));
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/utilisateurs', utilisateursRoutes);
 app.use('/api/produits', produitRoutes);
 app.use('/api/commandes', commandesRoutes);
 app.use('/api/ligne-commandes', ligneCommandesRoutes);
 app.use('/api/ligne-commande-garnitures', ligneCommandeGarnitureRoutes);
 app.use('/api/garnitures', garnituresRoutes);
-app.use('/api/sandwichs', sandwichRoutes);
-app.use('/api/boissons', boissonRoutes);
 app.use('/api/favoris', favorisRoutes);
 app.use('/api/plaintes', plaintesRoutes);
-
+app.use('/api/boulanger', boulangerRoutes);
 
 // Route principale
 app.get('/', (req, res) => {
@@ -43,8 +45,12 @@ app.get('/', (req, res) => {
 });
 
 // Lancer le serveur
-app.listen(PORT, () => {
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
     console.log(`Le serveur tourne sur http://localhost:${PORT}`);
-});
+  });
+}
+
+
 
 module.exports = app;

@@ -12,6 +12,21 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Récupérer un produit par ID
+router.get('/:id', async (req, res) => {
+  try {
+    const produit = await Produit.findByPk(req.params.id);
+
+    if (!produit) {
+      return res.status(404).json({ error: 'Produit non trouvé.' });
+    }
+
+    res.status(200).json(produit);
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur lors de la récupération du produit.' });
+  }
+});
+
 // Ajouter un produit
 router.post('/', async (req, res) => {
   try {
