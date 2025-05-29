@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import HeaderBoulanger from '../../components/boulanger/HeaderBoulanger';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 const DashboardBoulanger = () => {
+  const { t } = useTranslation();
   const [commandes, setCommandes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,7 +24,7 @@ const DashboardBoulanger = () => {
         return tranche;
     }
   };
-  
+
   const getStatutBadgeClass = (statut) => {
     switch (statut) {
       case 'en attente':
@@ -52,14 +54,11 @@ const DashboardBoulanger = () => {
         }
       });
 
-      // Recharger les commandes après mise à jour
       setCommandes(prev =>
         prev.map(cmd =>
           cmd.id === commandeId ? { ...cmd, statut: nouveauStatut } : cmd
         )
       );
-      
-      // Afficher notification de succès
       showNotification(`Commande #${commandeId} mise à jour avec succès!`, 'success');
     } catch (error) {
       console.error("Erreur lors de la mise à jour du statut :", error);
@@ -70,8 +69,6 @@ const DashboardBoulanger = () => {
   };
 
   const showNotification = (message, type = 'info') => {
-    // Simple notification alert - dans une application réelle, 
-    // vous pourriez utiliser une bibliothèque comme react-toastify
     alert(message);
   };
 
@@ -98,17 +95,14 @@ const DashboardBoulanger = () => {
     fetchCommandes();
   }, []);
 
-  // Filtrer les commandes selon le statut sélectionné et le terme de recherche
   const commandesFiltrees = commandes
     .filter(cmd => filtreStatut === 'tous' || cmd.statut === filtreStatut)
     .filter(cmd => {
       if (!searchTerm.trim()) return true;
-      
       const searchLower = searchTerm.toLowerCase().trim();
       const prenom = (cmd.utilisateur?.prenom || '').toLowerCase();
       const nom = (cmd.utilisateur?.nom || '').toLowerCase();
       const nomComplet = `${prenom} ${nom}`.toLowerCase();
-      
       return prenom.includes(searchLower) || 
              nom.includes(searchLower) || 
              nomComplet.includes(searchLower) ||
@@ -121,10 +115,8 @@ const DashboardBoulanger = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
-            <h2 className="text-2xl font-bold text-amber-900">Commandes à préparer</h2>
-            
+            <h2 className="text-2xl font-bold text-amber-900">{t('bakerDashboard.title')}</h2>
             <div className="flex flex-col md:flex-row items-start md:items-center space-y-3 md:space-y-0 md:space-x-4 w-full md:w-auto">
-              {/* Barre de recherche */}
               <div className="relative w-full md:w-64">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -133,7 +125,7 @@ const DashboardBoulanger = () => {
                 </div>
                 <input
                   type="text"
-                  placeholder="Rechercher par nom/prénom..."
+                  placeholder={t('bakerDashboard.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
@@ -155,11 +147,9 @@ const DashboardBoulanger = () => {
                   </button>
                 )}
               </div>
-              
-              {/* Filtre des commandes */}
               <div className="flex items-center space-x-2 w-full md:w-auto">
                 <label htmlFor="statut-filter" className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                  Filtrer par statut:
+                  {t('bakerDashboard.filterByStatus')}
                 </label>
                 <select
                   id="statut-filter"
@@ -167,12 +157,13 @@ const DashboardBoulanger = () => {
                   onChange={(e) => setFiltreStatut(e.target.value)}
                   className="rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring focus:ring-amber-200 focus:ring-opacity-50 w-full md:w-auto"
                 >
-                  <option value="tous">Tous</option>
-                  <option value="en attente">En attente</option>
-                  <option value="en préparation">En préparation</option>
-                  <option value="prêt">Prêt</option>
-                  <option value="livré">Livré</option>
-                  <option value="annulé">Annulé</option>
+                  <option value="tous">{t('bakerDashboard.status.all')}</option>
+                  <option value="en attente">{t('bakerDashboard.status.pending')}</option>
+                  <option value="en préparation">{t('bakerDashboard.status.preparing')}</option>
+                  <option value="prêt">{t('bakerDashboard.status.ready')}</option>
+                  <option value="livré">{t('bakerDashboard.status.delivered')}</option>
+                  <option value="annulé">{t('bakerDashboard.status.cancelled')}</option>
+
                 </select>
               </div>
             </div>

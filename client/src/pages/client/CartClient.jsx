@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import HeaderClient from "../../components/client/HeaderClient";
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 
 function CartClient() {
@@ -12,7 +13,18 @@ function CartClient() {
   const [trancheHoraire, setTrancheHoraire] = useState("matin");
   const [userSolde, setUserSolde] = useState(0);
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
 
+  const getNomProduit = (produit) => {
+    if (i18n.language === 'en') return produit.nom_en || produit.nom;
+    if (i18n.language === 'nl') return produit.nom_nl || produit.nom;
+    return produit.nom;
+  };
+  const getDescriptionProduit = (produit) => {
+    if (i18n.language === 'en') return produit.description_en || produit.description;
+    if (i18n.language === 'nl') return produit.description_nl || produit.description;
+    return produit.description;
+  };
   // Récupérer le solde de l'utilisateur
   useEffect(() => {
     const fetchUserSolde = async () => {
@@ -46,7 +58,7 @@ function CartClient() {
       // Notification d'erreur pour date manquante
       const notification = document.createElement('div');
       notification.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50';
-      notification.innerHTML = `<div class="flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>Veuillez sélectionner une date de retrait !</div>`;
+      notification.innerHTML = `<div class="flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>${t('erreurDateManquante')}</div>`;
       document.body.appendChild(notification);
       
       setTimeout(() => {
@@ -58,7 +70,7 @@ function CartClient() {
     const token = localStorage.getItem('token');
   
     if (!token) {
-      alert("Vous devez être connecté pour passer une commande.");
+      alert(t('erreurConnexionRequise'));
       navigate('/login');
       return;
     }
@@ -68,7 +80,7 @@ function CartClient() {
     if (userSolde < total) {
       const notification = document.createElement('div');
       notification.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50';
-      notification.innerHTML = `<div class="flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>Solde insuffisant ! Votre solde actuel: ${userSolde.toFixed(2)} €, montant nécessaire: ${total.toFixed(2)} €</div>`;
+      notification.innerHTML = `<div class="flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>${t('soldeInsuffisant', { soldeActuel: userSolde.toFixed(2), montantNecessaire: total.toFixed(2) })}</div>`;
       document.body.appendChild(notification);
       
       setTimeout(() => {
@@ -137,7 +149,7 @@ function CartClient() {
       // Notification de succès
       const notification = document.createElement('div');
       notification.className = 'fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50';
-      notification.innerHTML = `<div class="flex items-center"><svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>Commande validée pour le ${dateRetrait.toLocaleDateString()} (${trancheHoraire})<br>Nouveau solde: ${nouveauSolde.toFixed(2)} €</div>`;
+      notification.innerHTML = `<div class="flex items-center"><svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>${t('commandeValidee', { date: dateRetrait.toLocaleDateString(), tranche: trancheHoraire, nouveauSolde: nouveauSolde.toFixed(2) })}</div>`;
       document.body.appendChild(notification);
   
       setTimeout(() => {
@@ -150,7 +162,7 @@ function CartClient() {
       console.error('Erreur lors de la création de la commande :', error);
       const notification = document.createElement('div');
       notification.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50';
-      notification.innerHTML = `<div class="flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>Erreur lors de la validation de la commande</div>`;
+      notification.innerHTML = `<div class="flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>${t('erreurValidationCommande')}</div>`;
       document.body.appendChild(notification);
       
       setTimeout(() => {
@@ -165,23 +177,23 @@ function CartClient() {
       
       <div className="max-w-4xl mx-auto p-6">
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <h1 className="text-3xl font-bold mb-6 text-center text-amber-800">🛒 Votre Panier</h1>
+          <h1 className="text-3xl font-bold mb-6 text-center text-amber-800">🛒 {t('votrePanier')}</h1>
 
           {/* Affichage du solde */}
           <div className="bg-amber-50 p-3 rounded-lg mb-6 flex justify-between items-center">
-            <span className="font-medium text-amber-800">Votre solde actuel:</span>
+            <span className="font-medium text-amber-800">{t('votreSolde')}</span>
             <span className="font-bold text-lg text-amber-800">{userSolde.toFixed(2)} €</span>
           </div>
 
           {cartItems.length === 0 ? (
             <div className="text-center py-10">
               <div className="text-6xl mb-4">🛒</div>
-              <p className="text-center text-gray-600 mb-6">Votre panier est vide.</p>
+              <p className="text-center text-gray-600 mb-6">{t('panierVide')}</p>
               <button
                 onClick={() => navigate('/')}
                 className="bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 px-6 rounded-lg transition duration-300"
               >
-                Parcourir les produits
+                {t('parcourirProduits')}
               </button>
             </div>
           ) : (
@@ -195,13 +207,13 @@ function CartClient() {
                       {/* AMÉLIORATION: Afficher clairement si c'est un sandwich */}
                       {(item.type === 'sandwich' || item.isSandwich || item.estSandwich || item.categorie === 'sandwich') && (
                         <span className="ml-2 px-2 py-0.5 bg-amber-200 rounded-full text-xs text-amber-800">
-                          Sandwich
+                          {t('sandwich')}
                         </span>
                       )}
                       
                       {item.garnitures && item.garnitures.length > 0 && (
                         <p className="text-sm text-gray-600">
-                          Garnitures : {item.garnitures.map(g => g.nom).join(', ')}
+                          {t('garnitures')} : {item.garnitures.map(g => g.nom).join(', ')}
                         </p>
                       )}
 
@@ -223,48 +235,48 @@ function CartClient() {
 
               <div className="bg-amber-100 p-4 rounded-lg mb-8">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-xl font-semibold text-amber-800">Sous-total</h2>
+                  <h2 className="text-xl font-semibold text-amber-800">{t('sousTotal')}</h2>
                   <span className="text-xl font-bold text-amber-800">{totalPrice().toFixed(2)} €</span>
                 </div>
                 
                 {/* Indication sur le solde */}
                 {userSolde < totalPrice() ? (
                   <div className="mt-2 text-red-600 text-sm">
-                    Solde insuffisant ! Il vous manque {(totalPrice() - userSolde).toFixed(2)} €
+                    {t('soldeInsuffisantIndication', { montantManquant: (totalPrice() - userSolde).toFixed(2) })}
                   </div>
                 ) : (
                   <div className="mt-2 text-green-600 text-sm">
-                    Solde suffisant pour cette commande
+                    {t('soldeSuffisant')}
                   </div>
                 )}
               </div>
 
               <div className="mb-8">
-                <h2 className="text-xl font-semibold text-amber-800 mb-4">Détails de la commande</h2>
+                <h2 className="text-xl font-semibold text-amber-800 mb-4">{t('detailsCommande')}</h2>
                 
                 <div className="space-y-4 bg-white p-4 rounded-lg border border-gray-200">
                   <div>
-                    <label className="block mb-2 font-medium text-gray-700">Date de retrait :</label>
+                    <label className="block mb-2 font-medium text-gray-700">{t('dateRetrait')} :</label>
                     <DatePicker
                       selected={dateRetrait}
                       onChange={(date) => setDateRetrait(date)}
                       minDate={new Date()}
                       className="border border-gray-300 rounded-lg p-2 w-full focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                      placeholderText="Sélectionner une date"
+                      placeholderText={t('selectionnerDate')}
                       dateFormat="dd/MM/yyyy"
                     />
                   </div>
 
                   <div>
-                    <label className="block mb-2 font-medium text-gray-700">Tranche horaire :</label>
+                    <label className="block mb-2 font-medium text-gray-700">{t('trancheHoraire')} :</label>
                     <select
                       value={trancheHoraire}
                       onChange={(e) => setTrancheHoraire(e.target.value)}
                       className="border border-gray-300 rounded-lg p-2 w-full focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                     >
-                      <option value="matin">Matin (7h - 11h)</option>
-                      <option value="midi">Midi (11h - 14h)</option>
-                      <option value="soir">Soir (14h - 19h)</option>
+                      <option value="matin">{t('matin')}</option>
+                      <option value="midi">{t('midi')}</option>
+                      <option value="soir">{t('soir')}</option>
                     </select>
                   </div>
                 </div>
@@ -275,7 +287,7 @@ function CartClient() {
                   onClick={clearCart}
                   className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition duration-300 order-2 sm:order-1"
                 >
-                  Vider le panier
+                  {t('viderPanier')}
                 </button>
                 <button
                   onClick={handleValidation}
@@ -286,7 +298,7 @@ function CartClient() {
                       : 'bg-amber-600 hover:bg-amber-700'
                   }`}
                 >
-                  Valider la commande
+                  {t('validerCommande')}
                 </button>
               </div>
             </>
@@ -296,16 +308,16 @@ function CartClient() {
         {/* Suggestions - reste inchangé */}
         {cartItems.length === 0 && (
           <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-semibold text-amber-800 mb-4">Vous pourriez aimer</h2>
+            <h2 className="text-xl font-semibold text-amber-800 mb-4">{t('vousPourriezAimer')}</h2>
             <div className="flex flex-col items-center">
               <p className="text-center text-gray-600 mb-4">
-                Découvrez nos pains frais, viennoiseries et sandwichs préparés chaque jour avec passion.
+                {t('texteSuggestion')}
               </p>
               <button
                 onClick={() => navigate('/products')}
                 className="bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 px-6 rounded-lg transition duration-300"
               >
-                Voir tous les produits
+                {t('voirProduits')}
               </button>
             </div>
           </div>

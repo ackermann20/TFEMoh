@@ -4,7 +4,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { Utilisateur } = require('../models');
 
-const secretKey = 'votre_secret_jwt'; // change ça plus tard pour un vrai secret sécurisé
+require('dotenv').config();
+const secretKey = process.env.JWT_SECRET;
 
 router.post('/login', async (req, res) => {
     const { email, motDePasse } = req.body;

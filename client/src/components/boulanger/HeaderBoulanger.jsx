@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const HeaderBoulanger = () => {
   const user = JSON.parse(localStorage.getItem('userData'));
   const location = useLocation();
   const [showDropdown, setShowDropdown] = useState(false);
+  const { t, i18n } = useTranslation();
 
-  // Fermer le menu déroulant lorsqu'on clique ailleurs
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (showDropdown && !event.target.closest('.profile-menu')) {
@@ -20,7 +21,6 @@ const HeaderBoulanger = () => {
     };
   }, [showDropdown]);
 
-  // Fonction pour déterminer si le lien est actif
   const isActive = (path) => {
     return location.pathname === path;
   };
@@ -29,13 +29,11 @@ const HeaderBoulanger = () => {
     <header className="bg-gradient-to-r from-amber-500 to-yellow-400 text-white p-4 shadow-lg">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center">
-          {/* Logo et titre */}
           <div className="flex items-center">
             <span className="text-3xl mr-2">🥖</span>
-            <h1 className="text-2xl font-bold text-white">Espace Boulanger</h1>
+            <h1 className="text-2xl font-bold text-white">{t('espaceBoulanger')}</h1>
           </div>
 
-          {/* Navigation */}
           <nav className="flex items-center space-x-4">
             <Link 
               to="/admin" 
@@ -45,7 +43,7 @@ const HeaderBoulanger = () => {
                   : 'text-white hover:bg-amber-600'
               }`}
             >
-              Dashboard
+              {t('dashboard')}
             </Link>
             <Link 
               to="/admin/products" 
@@ -55,7 +53,7 @@ const HeaderBoulanger = () => {
                   : 'text-white hover:bg-amber-600'
               }`}
             >
-              Produits
+              {t('produits')}
             </Link>
             <Link 
               to="/admin/history" 
@@ -65,10 +63,9 @@ const HeaderBoulanger = () => {
                   : 'text-white hover:bg-amber-600'
               }`}
             >
-              Historique
+              {t('historique')}
             </Link>
 
-            {/* Menu profil */}
             <div className="relative profile-menu ml-4">
               <button
                 onClick={() => setShowDropdown(!showDropdown)}
@@ -84,6 +81,15 @@ const HeaderBoulanger = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
+              <select
+                onChange={(e) => i18n.changeLanguage(e.target.value)}
+                defaultValue={i18n.language}
+                className="border rounded px-2 py-1 text-sm text-amber-900 bg-white"
+              >
+                <option value="fr">FR</option>
+                <option value="en">EN</option>
+                <option value="nl">NL</option>
+              </select>
 
               {showDropdown && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10">
@@ -92,14 +98,14 @@ const HeaderBoulanger = () => {
                     className="flex items-center w-full text-left px-4 py-2 text-gray-700 hover:bg-amber-100"
                     onClick={() => setShowDropdown(false)}
                   >
-                    <span className="mr-2">👤</span> Mon profil
+                    <span className="mr-2">👤</span> {t('monProfil')}
                   </Link>
                   <Link
                     to="/admin/settings"
                     className="flex items-center w-full text-left px-4 py-2 text-gray-700 hover:bg-amber-100"
                     onClick={() => setShowDropdown(false)}
                   >
-                    <span className="mr-2">⚙️</span> Paramètres
+                    <span className="mr-2">⚙️</span> {t('parametres')}
                   </Link>
                   <hr className="my-1 border-gray-200" />
                   <button
@@ -110,7 +116,7 @@ const HeaderBoulanger = () => {
                     }}
                     className="flex items-center w-full text-left px-4 py-2 text-red-600 hover:bg-red-100"
                   >
-                    <span className="mr-2">🚪</span> Déconnexion
+                    <span className="mr-2">🚪</span> {t('deconnexion')}
                   </button>
                 </div>
               )}

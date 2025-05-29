@@ -8,7 +8,7 @@ describe('PUT /api/utilisateurs/:id', () => {
     
      const res = await request(app)
       .put(`/api/utilisateurs/${userId}`)
-      .send({ solde: 50.00 }) // met un solde différent
+      .send({ solde: 50.00 }) 
       .set('Authorization', `Bearer ${token}`);
 
     expect(res.statusCode).toBe(200);
