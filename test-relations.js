@@ -1,4 +1,4 @@
-const { Utilisateur, Commande, LigneCommande, Produit, Garniture, Plainte, Boisson, Sandwich } = require('./models');
+const { Utilisateur, Commande, LigneCommande, Produit, Garniture, Boisson, Sandwich } = require('./models');
 const sequelize = require('./models').sequelize;
 
 async function testRelations() {
@@ -58,16 +58,6 @@ async function testRelations() {
     });
 
     console.log('Garniture ajoutée :', garniture.toJSON());
-
-    // Ajout d'une plainte
-    const plainte = await Plainte.create({
-      utilisateurId: utilisateur.id,
-      commandeId: commande.id,
-      produitId: produit.id,
-      message: 'croissant trop cuit',
-    });
-
-    console.log('Plainte ajoutée :', plainte.toJSON());
 
     console.log('>> Toutes les relations ont été testées avec succès.');
   } catch (error) {

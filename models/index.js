@@ -1,5 +1,4 @@
-// Assurez-vous que tous les modèles sont bien définis et exportés dans models/index.js
-// Voici comment votre fichier index.js devrait être structuré :
+// Fichier central pour charger et associer tous les modèles Sequelize
 
 'use strict';
 
@@ -13,12 +12,14 @@ const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
 
 let sequelize;
+// Connexion à la base selon la config
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {
   sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
 
+// Chargement automatique de tous les fichiers .js (sauf ce fichier)
 fs
   .readdirSync(__dirname)
   .filter(file => {
@@ -34,6 +35,7 @@ fs
     db[model.name] = model;
   });
 
+// Association entre les modèles si défini
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
@@ -43,7 +45,7 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-// Vérification de l'existence des modèles
+// Affiche les modèles chargés
 console.log("Modèles disponibles :", Object.keys(db));
 
 module.exports = db;

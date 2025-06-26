@@ -25,10 +25,12 @@
   "ajout": "Toevoegen...",
   "ajouter": "Toevoegen",
   "personnaliser": "Aanpassen",
+  "Bienvenue" : "Welkom",
+  "connectezVous" : "Log in op uw account",
   "sloganAccueil": "Ontdek ons vers brood, gebak en belegde broodjes die elke dag met passie worden bereid.",
   "erreurChargementProduits": "Fout bij het laden van de producten.",
   "sloganFooter": "Elke dag verse producten",
-  "horaires": "Openingsuren",
+  "horairesFooter": "Openingsuren",
   "semaine": "Ma-Vr",
   "weekend": "Za-Zo",
   "droitsReserves": "Alle rechten voorbehouden.",
@@ -42,6 +44,7 @@
   "trancheHoraire": "Tijdslot",
   "viderPanier": "Mandje leegmaken",
   "validerCommande": "Bestelling bevestigen",
+  "voirProduit": "Bekijk product",
   "vousPourriezAimer": "Misschien ook interessant",
   "texteSuggestion": "Ontdek ons vers brood, gebak en broodjes, dagelijks met liefde bereid.",
   "voirProduits": "Bekijk alle producten",
@@ -53,6 +56,476 @@
   "bakerDashboard.status.preparing": "Wordt bereid",
   "bakerDashboard.status.ready": "Klaar",
   "bakerDashboard.status.delivered": "Geleverd",
-  "bakerDashboard.status.cancelled": "Geannuleerd"
+  "bakerDashboard.status.cancelled": "Geannuleerd",
+  "mesFavoris": "Mijn favorieten",
+  "découvrezVosFavoris": "Je hebt {{count}} favoriete producten.",
+  "vousNAvezPasEncoreDeFavoris": "Je hebt nog geen producten aan je favorieten toegevoegd.",
+  "erreurChargementFavoris": "Fout bij het laden van favorieten.",
+  "erreur": "Fout",
+  "réessayer": "Opnieuw proberen",
+  "aucunFavori": "Geen favorieten gevonden",
+  "commencezAjouterFavoris": "Voeg je favoriete producten toe om ze snel terug te vinden.",
+  "découvrirProduits": "Ontdek producten",
+  "produitFavori": "Favoriet product",
+  "produitsFavoris": "Favoriete producten",
+  "vosProduitsPreféres": "Hier zijn de producten die je als favoriet hebt gemarkeerd.",
+  "ajouterPlus": "Meer producten toevoegen",
+  "ajouterAuxFavoris": "Toevoegen aan favorieten",
+  "creerCompte": "Account aanmaken",
+  "sInscrire": "Registreren",
+  "dejaUnCompte": "Al een account?",
+  "prenom": "Voornaam",
+  "nom": "Achternaam",
+  "motDePasse": "Wachtwoord",
+  "confirmationMotDePasse": "Bevestig wachtwoord",
+  "emailInvalide": "Ongeldig e-mailadres",
+  "chargementConnexion": "Aanmelden...",
+  "ou": "of",
+  "pasEncoreDeCompte": "Nog geen account?",
+  "footer": "© 2024 Uw Bakkerij. Alle rechten voorbehouden.",
+  "motDePasseNonCorrespondant": "Wachtwoorden komen niet overeen",
+  "motDePasseTropFaible": "Wachtwoord is te zwak",
+  "erreurCreationCompte": "Fout bij het aanmaken van het account",
+  "telephone": "Telefoonnummer",
+  "motDePasseLongueur": "Minstens 8 tekens",
+  "motDePasseMajuscule": "1 hoofdletter",
+  "motDePasseMinuscule": "1 kleine letter",
+  "motDePasseChiffre": "1 cijfer",
+  "motDePasseSpecial": "1 speciaal teken",
+  "confirmerMotDePasse": "Bevestig wachtwoord",
+  "personnaliser": "Aanpassen",
+  "retour": "Terug",
+  "chargement": "Laden...",
+  "prixBase": "Basisprijs",
+  "garnitures": "Toppings",
+  "aucuneGarnitureDisponible": "Geen toppings beschikbaar",
+  "recapitulatif": "Samenvatting",
+  "garnituresSelectionnees": "Geselecteerde toppings",
+  "total": "Totaal",
+  "ajouterAuPanier": "Toevoegen aan winkelwagen",
+  "ajoutEnCours": "Toevoegen...",
+  "sandwichAjoutePanier": "Aangepaste sandwich toegevoegd aan winkelwagen!",
+  "produitIntrouvable": "Product niet gevonden",
+  "prixUnitaire": "Eenheidsprijs",
+  "total": "Totaal",
+  "supprimerArticle": "Dit artikel verwijderen",
+  "contact": "Contact",
+  "prenom": "Voornaam",
+  "nom": "Achternaam",
+  "email": "E-mailadres",
+  "telephone": "Telefoon",
+
+  
+"profile": {
+  "title": "Mijn Profiel",
+  "firstname": "Voornaam",
+  "lastname": "Achternaam",
+  "email": "E-mail",
+  "phone": "Telefoonnummer",
+  "cancel": "Annuleren",
+  "save": "Opslaan",
+  "editPhone": "Mijn telefoonnummer bewerken",
+  "actions": "Acties",
+  "orders": "Bekijk mijn bestellingen",
+  "changePassword": "Wijzig mijn wachtwoord",
+  "logout": "Uitloggen",
+  "phoneUpdated": "Telefoonnummer succesvol bijgewerkt!",
+  "updateError": "Fout bij het bijwerken van het profiel in de database",
+  "userIdMissing": "Gebruikers-ID ontbreekt",
+  "mustBeLoggedIn": "Je moet ingelogd zijn om deze actie uit te voeren",
+  "cannotFetch": "Kan gebruikersinformatie niet ophalen"
+},
+"ordersClient": {
+  "title": "Mijn Bestellingen",
+  "history": "Bestelgeschiedenis",
+  "noOrders": "Geen bestellingen gevonden.",
+  "loadingOrders": "Bestellingen laden...",
+  "details": "Bestelgegevens",
+  "loadingDetails": "Details laden...",
+  "selectOrder": "Selecteer een bestelling om de details te bekijken.",
+  "orderedOn": "Bestelling geplaatst op",
+  "quantity": "Aantal",
+  "toppings": "Beleg",
+  "price": "Prijs",
+  "subtitle": "Bekijk je eerdere bestellingen",
+  "total": "Totaalbedrag van de bestelling",
+  "orderedOn": "Besteld op",
+    "pickupDate": "Afhaling gepland", 
+    "timeSlot": "Tijdslot",
+    "pickup": "Afhaling",
+    "reorder": "Opnieuw bestellen" 
+},
+"orderStatus": {
+  "en attente": "In afwachting",
+  "en préparation": "In voorbereiding",
+  "prête": "Klaar",
+  "livré": "Geleverd"
+},
+"changePassword": {
+  "title": "Mijn wachtwoord wijzigen",
+  "current": "Huidig wachtwoord",
+  "new": "Nieuw wachtwoord",
+  "confirm": "Bevestig nieuw wachtwoord",
+  "rules": "Het wachtwoord moet minimaal 6 tekens bevatten",
+  "cancel": "Annuleren",
+  "submit": "Wachtwoord wijzigen",
+  "success": "Wachtwoord succesvol gewijzigd!",
+  "error": {
+    "mismatch": "De nieuwe wachtwoorden komen niet overeen.",
+    "incorrect": "Oud wachtwoord is onjuist.",
+    "generic": "Fout bij het wijzigen van het wachtwoord."
+  },
+  "tips": {
+    "title": "Beveiligingstips",
+    "unique": "Gebruik een uniek wachtwoord voor elke site",
+    "mix": "Combineer hoofdletters, kleine letters, cijfers en speciale tekens",
+    "avoid": "Gebruik geen gemakkelijk te raden persoonlijke informatie",
+    "changeOften": "Wijzig uw wachtwoord regelmatig"
+  }
+  
+
+},
+"forgotPassword": {
+  "title": "Wachtwoord vergeten",
+  "email": "E-mailadres",
+  "send": "Verzenden",
+  "messageSent": "Als dit e-mailadres bestaat, is een link verzonden.",
+  "error": "Er is een fout opgetreden. Probeer het opnieuw."
+
+},"dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Bestelling beheer en activiteit overzicht",
+      "loading": "Bestellingen laden...",
+      "retry": "Opnieuw proberen",
+      "noOrders": "Geen bestellingen gevonden",
+      "noSearchResults": "Geen resultaten voor \"{{term}}\"",
+      "noOrdersForDate": "Geen bestellingen voor deze datum.",
+      "order": "Bestelling",
+      "unknownClient": "Onbekende klant",
+      "orderDate": "Besteld op",
+      "pickupDate": "Ophaling gepland",
+      "clientInfo": "Klant informatie",
+      "products": "Producten",
+      "total": "Totaal",
+      "unknownProduct": "Onbekend product",
+      "unknownTopping": "Onbekende topping",
+      "searchPlaceholder": "Klant, bestelling #...",
+      "stats": {
+        "total": "Totaal",
+        "pending": "Wachtend",
+        "ready": "Klaar",
+        "revenue": "Omzet"
+      },
+      "status": {
+        "all": "Alle",
+        "pending": "Wachtend",
+        "preparing": "In voorbereiding",
+        "ready": "Klaar",
+        "delivered": "Geleverd",
+        "cancelled": "Geannuleerd"
+      },
+      "filters": {
+        "date": "Ophaaldatum",
+        "search": "Zoeken",
+        "status": "Status",
+        "reset": "Resetten"
+      },
+      "actions": {
+        "accept": "Accepteren",
+        "refuse": "Weigeren",
+        "markReady": "Markeren als klaar",
+        "markDelivered": "Markeren als geleverd"
+      },
+      "notifications": {
+        "orderUpdated": "Bestelling #{{id}} succesvol bijgewerkt!",
+        "updateError": "Kan de bestelling niet bijwerken."
+      },
+      "errors": {
+        "loadFailed": "Kan bestellingen niet laden. Probeer het later opnieuw."
+      }
+    },
+  "motDePasseOublie": "Wachtwoord vergeten?",
+  "placeholderEmail": "Je e-mailadres",
+  "envoyer": "Verzenden",
+  "erreurServeur": "Serverfout.",
+  "reinitialiserMotDePasse": "Wachtwoord opnieuw instellen",
+  "nouveauMotDePasse": "Nieuw wachtwoord",
+  "reinitialiser": "Opnieuw instellen",
+  "erreur": "Fout",
+"produitIndisponible": "Dit product is momenteel niet beschikbaar.",
+  "produitIndisponibleTitre": "Product niet beschikbaar",
+  "produitIndisponibleMessage": "Deze sandwich is momenteel niet meer beschikbaar voor bestelling.",
+  "produitIntrouvableMessage": "Dit product bestaat niet of is verwijderd.",
+  "erreurChargement": "Laadprobleem",
+  "erreurChargementMessage": "Kan productinformatie niet laden.",
+  "retourAccueil": "Terug naar home",
+  "indisponible": "Niet beschikbaar",
+   "typePain": "Brood",
+"filtrerParType": "Filteren op type",
+  "categoriesProduits": "Productcategorieën",
+  "toutSelectionner": "Alles selecteren",
+  "toutDeselectionner": "Alles deselecteren",
+  "aucunProduitDisponible": "Geen producten beschikbaar",
+  "filtresActifs": "Actieve filters",
+  "effacerTousFiltres": "Alle filters wissen",
+  "filtres": "Filters",
+  "recherche": "Zoeken",
+  "rechercherProduit": "Zoek een product...",
+  "produitsTrouves": "{{count}} product(en) gevonden",
+
+  "typePain": "Brood",
+  "typeSandwich": "Sandwich",
+  "typeViennoiserie": "Viennoiserie",
+  "typePatisserie": "Gebak",
+  "typeBoisson": "Drank",
+  "typeAutre": "Overig",
+    "objet": "Onderwerp",
+  "message": "Bericht",
+  "envoyer": "Verzenden",
+  "objet.demande": "Informatieaanvraag / Offerte",
+  "objet.suivi": "Bestelling opvolgen",
+  "objet.plainte": "Klacht",
+  "objet.autres": "Andere",
+  "messageEnvoye": "✅ Uw bericht is succesvol verzonden.",
+  "erreurMessage": "❌ Er is een fout opgetreden.",
+  "messagesContact": "Berichten",
+  "repondre": "Antwoorden",
+  "aucunMessage": "Nog geen berichten ontvangen.",
+  "chargementMessages": "Berichten worden geladen...",
+  "erreurChargement": "Fout bij het laden van de berichten.",
+  "de": "van",
+  "objet": "Onderwerp",
+  
+  "products": {
+    "title": "Productbeheer",
+    "subtitle": "Beheer de beschikbaarheid en prijzen van uw producten",
+    "toppingsTitle": "Garnering Beheer",
+    "toppingsSubtitle": "Beheer de beschikbaarheid van uw garneringen",
+    "products": "Producten",
+    "toppings": "Garneringen",
+    "loading": "Producten laden...",
+    "retry": "Opnieuw proberen",
+    "available": "Beschikbaar",
+    "unavailable": "Niet beschikbaar",
+    "makeAvailable": "Beschikbaar maken",
+    "makeUnavailable": "Niet beschikbaar maken",
+    "promoPrice": "Promotieprijs",
+    "noPromo": "Geen promotie",
+    "addProduct": "Toevoegen",
+    "noProducts": "Geen producten gevonden",
+    "noToppings": "Geen garneringen gevonden",
+    "noSearchResults": "Geen resultaten voor \"{{term}}\"",
+    "noProductsForCategory": "Geen producten in deze categorie.",
+    "noToppingsAvailable": "Geen garneringen beschikbaar.",
+    "searchPlaceholder": "Productnaam...",
+    "searchToppingsPlaceholder": "Garnering naam...",
+    "unknownProduct": "Onbekend product",   
+  "unknownTopping": "Onbekende garnering",
+    "stats": {
+      "total": "Totaal",
+      "available": "Beschikbaar",
+      "unavailable": "Niet beschikbaar",
+      "onSale": "In aanbieding"
+    },
+    "filters": {
+      "search": "Zoeken",
+      "category": "Categorie",
+      "reset": "Resetten"
+    },
+    "categories": {
+      "all": "Alle producten",
+      "bread": "Broden",
+      "pastry": "Gebak",
+      "sandwich": "Sandwiches",
+      "drink": "Dranken"
+    },
+    "errors": {
+      "loadFailed": "Kan producten niet laden. Probeer het later opnieuw."
+    },
+    "notifications": {
+      "productUpdated": "Product succesvol bijgewerkt!",
+      "updateError": "Kan product niet bijwerken."
+    }
+  },
+   "clients": {
+    "title": "Klantenbeheer",
+    "subtitle": "Beheer uw klanten en hun saldi",
+    "loading": "Klanten laden...",
+    "retry": "Opnieuw proberen",
+    "search": "Klant zoeken",
+    "searchPlaceholder": "Naam, email of telefoon...",
+    "noClients": "Geen geregistreerde klanten",
+    "noSearchResults": "Geen klanten gevonden voor \"{{term}}\"",
+    "addBalance": "Saldo toevoegen",
+    "addBalanceTitle": "Saldo toevoegen",
+    "currentBalance": "Huidige saldo",
+    "amountToAdd": "Toe te voegen bedrag",
+    "reason": "Reden",
+    "optional": "optioneel",
+    "reasonPlaceholder": "Bijv: Terugbetaling, Cadeau...",
+    "newBalance": "Nieuwe saldo",
+    "cancel": "Annuleren",
+    "confirm": "Bevestigen",
+    "adding": "Toevoegen...",
+    "stats": {
+      "totalClients": "Totaal klanten",
+      "withBalance": "Met saldo",
+      "totalBalance": "Totaal saldo"
+    },
+    "table": {
+      "client": "Klant",
+      "contact": "Contact",
+      "balance": "Saldo",
+      "joinDate": "Inschrijving",
+      "actions": "Acties"
+    },
+    "errors": {
+      "loadFailed": "Kan klanten niet laden.",
+      "invalidAmount": "Voer een geldig bedrag in.",
+      "addSoldeFailed": "Fout bij toevoegen saldo."
+    },
+    "notifications": {
+      "soldeAdded": "Saldo van {{amount}}€ succesvol toegevoegd aan {{name}}"
+    }
+  },
+  
+  "horaires": {
+    "title": "Sluitingsdagen Beheren",
+    "subtitle": "Klik op een dag om deze toe te voegen of te verwijderen van sluitingsdagen.",
+    "open": "Open",
+    "closed": "Gesloten",
+    "today": "Vandaag",
+    "openDays": "Open Dagen",
+    "closedDays": "Gesloten Dagen",
+    "openingRate": "Openingspercentage",
+    "instructionsTitle": "Instructies",
+    "instruction1": "Klik op een groene dag om deze te sluiten",
+    "instruction2": "Klik op een rode dag om deze te heropenen",
+    "instruction3": "Wijzigingen worden automatisch opgeslagen"
+  },
+  "months": {
+    "january": "Januari",
+    "february": "Februari",
+    "march": "Maart",
+    "april": "April",
+    "may": "Mei",
+    "june": "Juni",
+    "july": "Juli",
+    "august": "Augustus",
+    "september": "September",
+    "october": "Oktober",
+    "november": "November",
+    "december": "December"
+  },
+  "days": {
+    "monday": "Maa",
+    "tuesday": "Din",
+    "wednesday": "Woe",
+    "thursday": "Don",
+    "friday": "Vri",
+    "saturday": "Zat",
+    "sunday": "Zon"
+  },
+  "historiqueHeader": {
+  "titre": "Bestelgeschiedenis",
+  "vide": "Geen bestellingen geregistreerd.",
+  "dateCommande": "Besteldatum",
+  "dateRetrait": "Afhaaldatum",
+  "client": "Klant",
+  "statut": "Status",
+  "montant": "Bedrag"
+},
+"statuts": {
+  "en attente": "In afwachting",
+  "en préparation": "In voorbereiding",
+  "prêt": "Klaar",
+  "livré": "Geleverd",
+  "annulé": "Geannuleerd"
+},
+"history": {
+      "title": "Bestelgeschiedenis",
+      "subtitle": "Bekijk alle vorige bestellingen",
+      "loading": "Geschiedenis laden...",
+      "retry": "Opnieuw proberen",
+      "search": "Zoeken",
+      "searchPlaceholder": "Klant, Bestelling ID...",
+      "items": "artikel(en)",
+      
+      "stats": {
+        "total": "Totaal",
+        "today": "Vandaag",
+        "thisMonth": "Deze maand",
+        "revenue": "Omzet"
+      },
+      
+      "filters": {
+        "filterStatus": "Filter op status",
+        "allStatus": "Alle statussen"
+      },
+      
+      "status": {
+        "en_attente": "In afwachting",
+        "en_preparation": "In voorbereiding",
+        "pret": "Klaar",
+        "livre": "Geleverd",
+        "annule": "Geannuleerd",
+        "pending": "In afwachting",
+        "preparing": "In voorbereiding",
+        "ready": "Klaar",
+        "delivered": "Geleverd",
+        "cancelled": "Geannuleerd"
+      },
+      
+      "table": {
+        "date": "Datum",
+        "client": "Klant",
+        "status": "Status",
+        "amount": "Bedrag",
+        "actions": "Acties"
+      },
+      
+      "buttons": {
+        "details": "Details",
+        "viewDetails": "Details bekijken"
+      },
+      
+      "orderDetails": {
+        "title": "Besteldetails",
+        "quantity": "Hoeveelheid",
+        "total": "Totaal"
+      },
+      
+      "modal": {
+        "title": "Besteldetails",
+        "order": "Bestelling",
+        "client": "Klant",
+        "date": "Datum",
+        "status": "Status",
+        "items": "Bestelde artikelen",
+        "product": "Product",
+        "quantity": "Hoeveelheid",
+        "total": "Totaal"
+      },
+      
+      "messages": {
+        "noResults": "Geen bestellingen gevonden met deze criteria",
+        "empty": "Geen bestellingen in de geschiedenis"
+      },
+      
+      "errors": {
+        "loadFailed": "Kan bestelgeschiedenis niet laden."
+      }
+    }
+  
+
+
+
+
+
+
+
+
+
+
 
 }

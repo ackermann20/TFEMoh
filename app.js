@@ -10,9 +10,10 @@ const ligneCommandesRoutes = require('./routes/ligneCommandesRoutes');
 const ligneCommandeGarnitureRoutes = require('./routes/ligneCommandeGarnituresRoutes');
 const garnituresRoutes = require('./routes/garnituresRoutes');
 const favorisRoutes = require('./routes/favorisRoutes');
-const plaintesRoutes = require('./routes/plaintesRoutes');
 const authRoutes = require('./routes/auth');
 const boulangerRoutes = require('./routes/boulangerRoutes');
+const joursFermesRoutes = require('./routes/joursFermesRoutes');
+const contactRoutes = require('./routes/contactRoutes');
 
 const app = express();
 const PORT = 3000;
@@ -36,8 +37,9 @@ app.use('/api/ligne-commandes', ligneCommandesRoutes);
 app.use('/api/ligne-commande-garnitures', ligneCommandeGarnitureRoutes);
 app.use('/api/garnitures', garnituresRoutes);
 app.use('/api/favoris', favorisRoutes);
-app.use('/api/plaintes', plaintesRoutes);
 app.use('/api/boulanger', boulangerRoutes);
+app.use('/api/horaires', joursFermesRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Route principale
 app.get('/', (req, res) => {

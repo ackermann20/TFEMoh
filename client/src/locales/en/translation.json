@@ -6,6 +6,8 @@
   "creerCompte": "Create an account",
   "email": "Email",
   "motDePasse": "Password",
+  "Bienvenue" : "Welcome",
+  "connectezVous" : "Log in to your account",
   "seConnecter": "Login",
   "deconnexion": "Logout",
   "accueil": "Home",
@@ -28,7 +30,7 @@
    "sloganAccueil": "Discover our fresh bread, pastries and sandwiches prepared daily with passion.",
   "erreurChargementProduits": "Error while loading products.",
   "sloganFooter": "Fresh products, every day",
-  "horaires": "Opening hours",
+  "horairesFooter": "Opening hours",
   "semaine": "Mon-Fri",
   "weekend": "Sat-Sun",
   "droitsReserves": "All rights reserved.",
@@ -42,6 +44,7 @@
   "trancheHoraire": "Time slot",
   "viderPanier": "Empty cart",
   "validerCommande": "Confirm order",
+  "voirProduit": "View product",
   "vousPourriezAimer": "You might also like",
   "texteSuggestion": "Discover our fresh bread, pastries, and sandwiches prepared daily with passion.",
   "voirProduits": "View all products",
@@ -67,7 +70,551 @@
   "bakerDashboard.status.preparing": "Preparing",
   "bakerDashboard.status.ready": "Ready",
   "bakerDashboard.status.delivered": "Delivered",
-  "bakerDashboard.status.cancelled": "Cancelled"
+  "bakerDashboard.status.cancelled": "Cancelled",
+  "mesFavoris": "My Favorites",
+  "découvrezVosFavoris": "You have {{count}} favorite products.",
+  "vousNAvezPasEncoreDeFavoris": "You haven't added any products to your favorites yet.",
+  "erreurChargementFavoris": "Error loading favorites.",
+  "erreur": "Error",
+  "réessayer": "Retry",
+  "aucunFavori": "No favorites found",
+  "commencezAjouterFavoris": "Add your favorite products to find them more easily.",
+  "découvrirProduits": "Discover products",
+  "produitFavori": "Favorite product",
+  "produitsFavoris": "Favorite products",
+  "vosProduitsPreféres": "Here are the products you've added to your favorites.",
+  "ajouterPlus": "Add more products",
+  "ajouterAuxFavoris": "Add to favorites",
+  "creerCompte": "Create an account",
+  "sInscrire": "Sign up",
+  "dejaUnCompte": "Already have an account?",
+  "prenom": "First name",
+  "nom": "Last name",
+  "motDePasse": "Password",
+  "confirmationMotDePasse": "Confirm password",
+  "emailInvalide": "Invalid email",
+  "motDePasseNonCorrespondant": "Passwords do not match",
+  "motDePasseTropFaible": "Password too weak",
+  "erreurCreationCompte": "Error while creating account",
+  "chargementConnexion": "Signing in...",
+"ou": "or",
+"pasEncoreDeCompte": "Don't have an account?",
+"footer": "© 2024 Your Bakery. All rights reserved.",
+  "telephone": "Phone number",
+  "motDePasseLongueur": "At least 8 characters",
+  "motDePasseMajuscule": "1 uppercase letter",
+  "motDePasseMinuscule": "1 lowercase letter",
+  "motDePasseChiffre": "1 number",
+  "motDePasseSpecial": "1 special character",
+  "confirmerMotDePasse": "Confirm password",
+  "telephoneInvalide": "Invalid phone number",
+  "personnaliser": "Customize",
+  "retour": "Back",
+  "chargement": "Loading...",
+  "prixBase": "Base price",
+  "garnitures": "Toppings",
+  "aucuneGarnitureDisponible": "No toppings available",
+  "recapitulatif": "Summary",
+  "garnituresSelectionnees": "Selected toppings",
+  "total": "Total",
+  "ajouterAuPanier": "Add to cart",
+  "ajoutEnCours": "Adding...",
+  "sandwichAjoutePanier": "Customized sandwich added to cart!",
+  "produitIntrouvable": "Product not found",
+  "prixUnitaire": "Unit price",
+  "total": "Total",
+  "supprimerArticle": "Remove this item",
+  "profile": {
+  "title": "My Profile",
+  "firstname": "First Name",
+  "lastname": "Last Name",
+  "email": "Email",
+  "phone": "Phone Number",
+  "cancel": "Cancel",
+  "save": "Save",
+  "editPhone": "Edit my phone number",
+  "actions": "Actions",
+  "orders": "View my orders",
+  "changePassword": "Change my password",
+  "logout": "Log out",
+  "phoneUpdated": "Phone number successfully updated!",
+  "updateError": "Error updating the profile in the database",
+  "userIdMissing": "User ID is missing",
+  "mustBeLoggedIn": "You must be logged in to perform this action",
+  "cannotFetch": "Unable to retrieve user information",
+   "contact": "Contact",
+  "prenom": "First name",
+  "nom": "Last name",
+  "email": "Email address",
+  "telephone": "Phone"
+
+},
+"ordersClient": {
+  "title": "My Orders",
+  "history": "Order History",
+  "noOrders": "No orders found.",
+  "loadingOrders": "Loading orders...",
+  "details": "Order Details",
+  "loadingDetails": "Loading details...",
+  "selectOrder": "Select an order to see the details.",
+  "orderedOn": "Order placed on",
+  "quantity": "Quantity",
+  "toppings": "Toppings",
+  "price": "Price",
+  "subtitle": "View your past order history",
+  "total": "Total order amount",
+   "orderedOn": "Ordered on",
+    "pickupDate": "Pickup scheduled", 
+    "timeSlot": "Time slot",
+    "pickup": "Pickup",
+    "reorder": "Order again" 
+}
+,
+"orderStatus": {
+  "en attente": "Pending",
+  "en préparation": "Preparing",
+  "prête": "Ready",
+  "livré": "Delivered"
+},
+"changePassword": {
+  "title": "Change my password",
+  "current": "Current password",
+  "new": "New password",
+  "confirm": "Confirm new password",
+  "rules": "Password must contain at least 6 characters",
+  "cancel": "Cancel",
+  "submit": "Change password",
+  "success": "Password changed successfully!",
+  "error": {
+    "mismatch": "New passwords do not match.",
+    "incorrect": "Incorrect old password.",
+    "generic": "Error while changing password."
+  },
+  "tips": {
+    "title": "Security tips",
+    "unique": "Use a unique password for each site",
+    "mix": "Combine uppercase, lowercase, numbers, and special characters",
+    "avoid": "Avoid using easy-to-guess personal information",
+    "changeOften": "Change your password regularly"
+  }
+
+
+},
+  "forgotPassword": {
+  "title": "Forgot Password",
+  "email": "Email address",
+  "send": "Send",
+  "messageSent": "If this email exists, a link has been sent.",
+  "error": "An error occurred. Please try again."
+
+}, "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Order management and activity overview",
+      "loading": "Loading orders...",
+      "retry": "Retry",
+      "noOrders": "No orders found",
+      "noSearchResults": "No results for \"{{term}}\"",
+      "noOrdersForDate": "No orders for this date.",
+      "order": "Order",
+      "unknownClient": "Unknown client",
+      "orderDate": "Ordered on",
+      "pickupDate": "Pickup scheduled",
+      "clientInfo": "Client information",
+      "products": "Products",
+      "total": "Total",
+      "unknownProduct": "Unknown product",
+      "unknownTopping": "Unknown topping",
+      "searchPlaceholder": "Client, order #...",
+      "stats": {
+        "total": "Total",
+        "pending": "Pending",
+        "ready": "Ready",
+        "revenue": "Revenue"
+      },
+      "status": {
+        "all": "All",
+        "pending": "Pending",
+        "preparing": "Preparing",
+        "ready": "Ready",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled"
+      },
+      "filters": {
+        "date": "Pickup date",
+        "search": "Search",
+        "status": "Status",
+        "reset": "Reset"
+      },
+      "actions": {
+        "accept": "Accept",
+        "refuse": "Refuse",
+        "markReady": "Mark as ready",
+        "markDelivered": "Mark as delivered"
+      },
+      "notifications": {
+        "orderUpdated": "Order #{{id}} updated successfully!",
+        "updateError": "Unable to update the order."
+      },
+      "errors": {
+        "loadFailed": "Unable to load orders. Please try again later."
+      }
+    },
+ "motDePasseOublie": "Forgot password?",
+  "placeholderEmail": "Your email address",
+  "envoyer": "Send",
+  "erreurServeur": "Server error.",
+  "reinitialiserMotDePasse": "Reset Password",
+  "nouveauMotDePasse": "New Password",
+  "reinitialiser": "Reset",
+  "erreur": "Error",
+"produitIndisponible": "This product is currently not available.",
+  "produitIndisponibleTitre": "Product unavailable",
+  "produitIndisponibleMessage": "This sandwich is currently no longer available for order.",
+  "produitIntrouvableMessage": "This product does not exist or has been deleted.",
+  "erreurChargement": "Loading error",
+  "erreurChargementMessage": "Unable to load product information.",
+  "retourAccueil": "Back to home",
+  "indisponible": "Unavailable",
+"typePain": "Bread",
+  "typeSandwich": "Sandwich",
+  "typeViennoiserie": "Pastry",
+  "typePatisserie": "Cake",
+  "typeBoisson": "Beverage",
+  "typeAutre": "Other",
+"filtrerParType": "Filter by type",
+  "categoriesProduits": "Product categories",
+  "toutSelectionner": "Select all",
+  "toutDeselectionner": "Deselect all",
+  "aucunProduitDisponible": "No product available",
+  "filtresActifs": "Active filters",
+  "effacerTousFiltres": "Clear all filters",
+  "filtres": "Filters",
+  "recherche": "Search",
+  "rechercherProduit": "Search for a product...",
+  "produitsTrouves": "{{count}} product(s) found",
+
+  "typePain": "Bread",
+  "typeSandwich": "Sandwich",
+  "typeViennoiserie": "Pastry",
+  "typePatisserie": "Cake",
+  "typeBoisson": "Drink",
+  "typeAutre": "Other",
+  "objet": "Subject",
+  "message": "Message",
+  "envoyer": "Send",
+  "objet.demande": "Information / Quote request",
+  "objet.suivi": "Order follow-up",
+  "objet.plainte": "Complaint",
+  "objet.autres": "Others",
+  "messageEnvoye": "✅ Your message has been sent successfully.",
+  "erreurMessage": "❌ An error occurred.",
+  "messagesContact": "Messages",
+  "repondre": "Reply",
+  "aucunMessage": "No messages received yet.",
+  "chargementMessages": "Loading messages...",
+  "erreurChargement": "Error while loading messages.",
+  "de": "from",
+  "objet": "Subject",
+"products": {
+    "title": "Product Management",
+    "subtitle": "Manage the availability and prices of your products",
+    "toppingsTitle": "Toppings Management",
+    "toppingsSubtitle": "Manage the availability of your toppings",
+    "products": "Products",
+    "toppings": "Toppings",
+    "loading": "Loading products...",
+    "retry": "Retry",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "makeAvailable": "Make available",
+    "makeUnavailable": "Make unavailable",
+    "promoPrice": "Promotion price",
+    "noPromo": "No promotion",
+    "addProduct": "Add",
+    "noProducts": "No products found",
+    "noToppings": "No toppings found",
+    "noSearchResults": "No results for \"{{term}}\"",
+    "noProductsForCategory": "No products in this category.",
+    "noToppingsAvailable": "No toppings available.",
+    "searchPlaceholder": "Product name...",
+    "searchToppingsPlaceholder": "Topping name...",
+    "unknownProduct": "Unknown product",    
+  "unknownTopping": "Unknown topping",
+    "stats": {
+      "total": "Total",
+      "available": "Available",
+      "unavailable": "Unavailable",
+      "onSale": "On Sale"
+    },
+    "filters": {
+      "search": "Search",
+      "category": "Category",
+      "reset": "Reset"
+    },
+    "categories": {
+      "all": "All products",
+      "bread": "Breads",
+      "pastry": "Pastries",
+      "sandwich": "Sandwiches",
+      "drink": "Beverages"
+    },
+    "errors": {
+      "loadFailed": "Unable to load products. Please try again later."
+    },
+    "notifications": {
+      "productUpdated": "Product updated successfully!",
+      "updateError": "Unable to update product."
+    }
+  },
+
+  "clients": {
+    "title": "Client Management",
+    "subtitle": "Manage your clients and their balances",
+    "loading": "Loading clients...",
+    "retry": "Retry",
+    "search": "Search client",
+    "searchPlaceholder": "Name, email or phone...",
+    "noClients": "No registered clients",
+    "noSearchResults": "No clients found for \"{{term}}\"",
+    "addBalance": "Add balance",
+    "addBalanceTitle": "Add balance",
+    "currentBalance": "Current balance",
+    "amountToAdd": "Amount to add",
+    "reason": "Reason",
+    "optional": "optional",
+    "reasonPlaceholder": "Ex: Refund, Gift...",
+    "newBalance": "New balance",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "adding": "Adding...",
+    "stats": {
+      "totalClients": "Total clients",
+      "withBalance": "With balance",
+      "totalBalance": "Total balance"
+    },
+    "table": {
+      "client": "Client",
+      "contact": "Contact",
+      "balance": "Balance",
+      "joinDate": "Join date",
+      "actions": "Actions"
+    },
+    "errors": {
+      "loadFailed": "Unable to load clients.",
+      "invalidAmount": "Please enter a valid amount.",
+      "addSoldeFailed": "Error adding balance."
+    },
+    "notifications": {
+      "soldeAdded": "Balance of {{amount}}€ successfully added to {{name}}"
+    }
+  },
+  "horaires": {
+    "title": "Manage Closing Days",
+    "subtitle": "Click on a day to add or remove it from closing days.",
+    "open": "Open",
+    "closed": "Closed",
+    "today": "Today",
+    "openDays": "Open Days",
+    "closedDays": "Closed Days",
+    "openingRate": "Opening Rate",
+    "instructionsTitle": "Instructions",
+    "instruction1": "Click on a green day to close it",
+    "instruction2": "Click on a red day to reopen it",
+    "instruction3": "Changes are saved automatically"
+  },
+
+  "months": {
+    "january": "January",
+    "february": "February",
+    "march": "March",
+    "april": "April",
+    "may": "May",
+    "june": "June",
+    "july": "July",
+    "august": "August",
+    "september": "September",
+    "october": "October",
+    "november": "November",
+    "december": "December"
+  },
+  "days": {
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri",
+    "saturday": "Sat",
+    "sunday": "Sun"
+  },
+  "historiqueHeader": {
+  "titre": "Order History",
+  "vide": "No orders recorded.",
+  "dateCommande": "Order Date",
+  "dateRetrait": "Pickup Date",
+  "client": "Client",
+  "statut": "Status",
+  "montant": "Amount"
+},
+"statuts": {
+  "en attente": "Pending",
+  "en préparation": "In preparation",
+  "prêt": "Ready",
+  "livré": "Delivered",
+  "annulé": "Cancelled"
+},
+ "history": {
+      "title": "Order History",
+      "subtitle": "View all past orders",
+      "loading": "Loading history...",
+      "retry": "Retry",
+      "search": "Search",
+      "searchPlaceholder": "Client, Order ID...",
+      "items": "item(s)",
+      
+      "stats": {
+        "total": "Total",
+        "today": "Today",
+        "thisMonth": "This month",
+        "revenue": "Revenue"
+      },
+      
+      "filters": {
+        "filterStatus": "Filter by status",
+        "allStatus": "All statuses"
+      },
+      
+      "status": {
+        "en_attente": "Pending",
+        "pret": "Ready",
+        "livre": "Delivered",
+        "annule": "Cancelled",
+        "pending": "Pending",
+        "ready": "Ready",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled"
+      },
+      
+      "table": {
+        "date": "Date",
+        "client": "Client",
+        "status": "Status",
+        "amount": "Amount",
+        "actions": "Actions"
+      },
+      
+      "buttons": {
+        "details": "Details",
+        "viewDetails": "View details"
+      },
+      
+      "orderDetails": {
+        "title": "Order details",
+        "quantity": "Quantity",
+        "total": "Total"
+      },
+      
+      "modal": {
+        "title": "Order details",
+        "order": "Order",
+        "client": "Client",
+        "date": "Date",
+        "status": "Status",
+        "items": "Ordered items",
+        "product": "Product",
+        "quantity": "Quantity",
+        "total": "Total"
+      },
+      
+      "messages": {
+        "noResults": "No orders found with these criteria",
+        "empty": "No orders in history"
+      },
+      
+      "errors": {
+        "loadFailed": "Unable to load order history."
+      }
+    },
+        "history": {
+      "title": "Order History",
+      "subtitle": "View all past orders",
+      "loading": "Loading history...",
+      "retry": "Retry",
+      "search": "Search",
+      "searchPlaceholder": "Client, Order ID...",
+      "items": "item(s)",
+      
+      "stats": {
+        "total": "Total",
+        "today": "Today",
+        "thisMonth": "This month",
+        "revenue": "Revenue"
+      },
+      
+      "filters": {
+        "filterStatus": "Filter by status",
+        "allStatus": "All statuses"
+      },
+      
+      "status": {
+        "en_attente": "Pending",
+        "en_preparation": "Preparing",
+        "pret": "Ready",
+        "livre": "Delivered",
+        "annule": "Cancelled",
+        "pending": "Pending",
+        "preparing": "Preparing",
+        "ready": "Ready",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled"
+      },
+      
+      "table": {
+        "date": "Date",
+        "client": "Client",
+        "status": "Status",
+        "amount": "Amount",
+        "actions": "Actions"
+      },
+      
+      "buttons": {
+        "details": "Details",
+        "viewDetails": "View details"
+      },
+      
+      "orderDetails": {
+        "title": "Order details",
+        "quantity": "Quantity",
+        "total": "Total"
+      },
+      
+      "modal": {
+        "title": "Order details",
+        "order": "Order",
+        "client": "Client",
+        "date": "Date",
+        "status": "Status",
+        "items": "Ordered items",
+        "product": "Product",
+        "quantity": "Quantity",
+        "total": "Total"
+      },
+      
+      "messages": {
+        "noResults": "No orders found with these criteria",
+        "empty": "No orders in history"
+      },
+      
+      "errors": {
+        "loadFailed": "Unable to load order history."
+      }
+    }
+
+
+
+
+
+
+
 
   
   

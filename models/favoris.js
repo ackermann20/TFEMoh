@@ -1,32 +1,33 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Favoris extends Model {
     /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
+     * Associations entre les modèles
      */
     static associate(models) {
+      // Le favori appartient à un utilisateur
       this.belongsTo(models.Utilisateur, { foreignKey: 'utilisateurId', as: 'utilisateur' });
+      // Le favori est lié à un produit
       this.belongsTo(models.Produit, { foreignKey: 'produitId', as: 'produit' });
     }
-    
   }
+
+  // Champs du modèle Favoris
   Favoris.init({
     utilisateurId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: false, // L'utilisateur est requis
     },
     produitId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: false, // Le produit est requis
     },
   }, {
     sequelize,
     modelName: 'Favoris',
   });
+
   return Favoris;
 };

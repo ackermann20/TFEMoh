@@ -1,50 +1,67 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './services/CartContext';
+import { UserContext } from './services/UserContext';
 
 // Pages client
 import HomeClient from './pages/client/HomeClient';
 import LoginClient from './pages/client/LoginClient';
-import ProductsClient from './pages/client/ProductsClient';
 import CartClient from './pages/client/CartClient';
 import CustomizeSandwichClient from './pages/client/CustomizeSandwichClient'; 
-import SandwichesClient from './pages/client/SandwichesClient';
 import ProfileClient from './pages/client/ProfileClient';
 import OrdersClient from './pages/client/OrdersClient';
 import ChangePasswordClient from './pages/client/ChangePasswordClient';
 import ProtectedRouteBoulanger from './components/ProtectedRouteBoulanger';
 import DashboardBoulanger from './pages/boulanger/DashboardBoulanger';
-
-
-
-const user = JSON.parse(localStorage.getItem('userData'));
-const defaultRoute = user?.role === "boulanger" ? "/admin" : "/produits";
+import FavorisClient from './pages/client/favorisClient';
+import RegisterClient from './pages/client/RegisterClient';
+import ForgotPassword from './pages/client/ForgotPasswordClient';
+import RequireNoAuth from './pages/client/PrivateRoute';
+import ResetPasswordClient from './pages/client/ResetPasswordClient';
+import ProductBoulanger from './pages/boulanger/ProductBoulanger'; 
+import ClientsBoulanger from './pages/boulanger/ClientsBoulanger';
+import HorairesBoulanger from './pages/boulanger/HorairesBoulanger';
+import ContactClient from './pages/client/ContactClient';
+import ContactBoulanger from './pages/boulanger/ContactBoulanger';
+import HistoryBoulanger from './pages/boulanger/HistoryBoulanger';
 
 function App() {
+  const [user, setUser] = useState(() => {
+    const stored = localStorage.getItem('userData');
+    return stored ? JSON.parse(stored) : null;
+  });
+
   return (
     <CartProvider>
-    <Router>
-      <Routes>
-        
-        <Route path="/" element={<HomeClient />} />
-        <Route path="/login" element={<LoginClient />} />
-        <Route path="/products" element={<ProductsClient />} />
-        <Route path="/cart" element={<CartClient />} />
-        <Route path="/customize-sandwich/:id" element={<CustomizeSandwichClient />} />
-        <Route path="/sandwiches" element={<SandwichesClient />} />
-        <Route path="/profile" element={<ProfileClient />} />
-        <Route path="/orders" element={<OrdersClient />} />
-        <Route path="/change-password" element={<ChangePasswordClient />} />
-        
-        <Route path="/boulanger" element={
-          <ProtectedRouteBoulanger>
-            <DashboardBoulanger />
-          </ProtectedRouteBoulanger>
-        } />
+      <UserContext.Provider value={{ user, setUser }}>
+        <Router>
+          <Routes>
+            <Route path="/" element={<HomeClient />} />
+            <Route path="/login" element={
+              <RequireNoAuth>
+                <LoginClient />
+              </RequireNoAuth>
+            } />
+            <Route path="/cart" element={<CartClient />} />
+            <Route path="/customize-sandwich/:id" element={<CustomizeSandwichClient />} />
+            <Route path="/profile" element={<ProfileClient />} />
+            <Route path="/orders" element={<OrdersClient />} />
+            <Route path="/change-password" element={<ChangePasswordClient />} />
+            <Route path="/favoris" element={<FavorisClient />} />
+            <Route path="/contact" element={<ContactClient />} />
+            <Route path="/register" element={<RequireNoAuth><RegisterClient /></RequireNoAuth>} />
+            <Route path="/forgot-password" element={<RequireNoAuth><ForgotPassword /></RequireNoAuth>} />
+            <Route path="/reset-password/:token" element={<ResetPasswordClient />} />
+            <Route path="/boulanger" element={<ProtectedRouteBoulanger><DashboardBoulanger /></ProtectedRouteBoulanger>} />
+            <Route path="/boulanger/products" element={<ProtectedRouteBoulanger><ProductBoulanger /></ProtectedRouteBoulanger>} />
+            <Route path="/boulanger/clients" element={<ProtectedRouteBoulanger><ClientsBoulanger /></ProtectedRouteBoulanger>} />
+            <Route path="/boulanger/horaires" element={<ProtectedRouteBoulanger><HorairesBoulanger/></ProtectedRouteBoulanger>} />
+            <Route path="/boulanger/messages" element={<ProtectedRouteBoulanger><ContactBoulanger/></ProtectedRouteBoulanger>} />
+            <Route path="/boulanger/history" element={<ProtectedRouteBoulanger><HistoryBoulanger /></ProtectedRouteBoulanger>} />
 
-
-      </Routes>
-    </Router>
+          </Routes>
+        </Router>
+      </UserContext.Provider>
     </CartProvider>
   );
 }

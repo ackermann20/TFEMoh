@@ -1,170 +1,241 @@
 const express = require('express');
 const router = express.Router();
-const { Commande, LigneCommande,LigneCommandeGarniture,Garniture, Utilisateur, Produit } = require('../models');
+const { Commande, LigneCommande, LigneCommandeGarniture, Garniture, Utilisateur, Produit } = require('../models');
 const verifyToken = require('../middleware/verifyToken');
+const { sequelize } = require('../models');
 
-// Récupérer toutes les commandes
+
+// ===============================
+// 📊 Recommandations pour un utilisateur
+// ===============================
+router.get('/utilisateurs/:id/recommandations', async (req, res) => {
+  const utilisateurId = req.params.id;
+
+  try {
+    const results = await sequelize.query(`
+      SELECT produitId, COUNT(*) AS nb_commandes
+      FROM LigneCommandes
+      INNER JOIN Commandes ON LigneCommandes.commandeId = Commandes.id
+      WHERE Commandes.utilisateurId = ?
+      GROUP BY produitId
+      ORDER BY nb_commandes DESC
+      LIMIT 5
+    `, {
+      replacements: [utilisateurId],
+      type: sequelize.QueryTypes.SELECT
+    });
+
+    let produits;
+
+    if (results.length > 0) {
+      const ids = results.map(r => r.produitId);
+      const allProduits = await Produit.findAll();
+      produits = ids.map(id => allProduits.find(p => p.id === id)).filter(Boolean);
+    } else {
+      produits = await Produit.findAll({
+        order: [['disponible', 'DESC']],
+        limit: 5
+      });
+    }
+
+    res.json(produits);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Erreur lors de la récupération des suggestions' });
+  }
+});
+
+
+// ===============================
+// 📥 Récupérer toutes les commandes avec détails
+// ===============================
 router.get('/', async (req, res) => {
   try {
-    const commandes = await Commande.findAll();
+    const commandes = await Commande.findAll({
+      include: [
+        { model: Utilisateur, as: 'utilisateur', attributes: ['id', 'prenom', 'nom', 'email', 'telephone'] },
+        {
+          model: LigneCommande,
+          as: 'ligneCommandes',
+          include: [
+            { model: Produit, as: 'produit', attributes: ['id', 'nom', 'prix', 'type'] },
+            {
+              model: LigneCommandeGarniture,
+              as: 'ligneGarnitures',
+              attributes: ['typePain'],
+              include: [
+                { model: Garniture, as: 'garniture', attributes: ['id', 'nom', 'prix'] }
+              ]
+            }
+          ]
+        }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
     res.status(200).json(commandes);
   } catch (error) {
     console.error('Erreur getAll commandes:', error);
     res.status(500).json({ message: 'Erreur lors de la récupération des commandes', error: error.message });
   }
 });
-// Récupérer une commande par ID
+
+
+// ===============================
+// 🔍 Récupérer une commande par ID
+// ===============================
 router.get('/:id', async (req, res) => {
   try {
-    // Assurez-vous que tous les modèles nécessaires sont importés en haut du fichier
     if (!LigneCommandeGarniture || !Garniture) {
-      return res.status(500).json({ 
-        message: 'Modèles manquants. Vérifiez vos imports.'
-      });
+      return res.status(500).json({ message: 'Modèles manquants. Vérifiez vos imports.' });
     }
-    
+
     const commande = await Commande.findByPk(req.params.id, {
       include: [
-        {
-          model: Utilisateur,
-          as: 'utilisateur'
-        },
+        { model: Utilisateur, as: 'utilisateur' },
         {
           model: LigneCommande,
           as: 'ligneCommandes',
           include: [
-            {
-              model: Produit,
-              as: 'produit'
-            },
+            { model: Produit, as: 'produit' },
             {
               model: LigneCommandeGarniture,
               as: 'ligneGarnitures',
-              include: [
-                {
-                  model: Garniture,
-                  as: 'garniture'
-                }
-              ]
+              include: [{ model: Garniture, as: 'garniture' }]
             }
           ]
         }
       ]
     });
 
-    
-    if (!commande) {
-      return res.status(404).json({ message: 'Commande non trouvée' });
-    }
-    
+    if (!commande) return res.status(404).json({ message: 'Commande non trouvée' });
+
     res.status(200).json(commande);
   } catch (error) {
     console.error('Erreur getById commande:', error);
-    res.status(500).json({ 
-      message: 'Erreur lors de la récupération de la commande', 
-      error: error.message,
-      stack: error.stack
-    });
+    res.status(500).json({ message: 'Erreur lors de la récupération de la commande', error: error.message });
   }
 });
 
-// Route qui récupère les commandes d'un utilisateur
+
+// ===============================
+// 👤 Commandes d’un utilisateur (auth)
+// ===============================
 router.get('/utilisateur/:id', verifyToken, async (req, res) => {
+  try {
+    const commandes = await Commande.findAll({
+      where: { utilisateurId: req.params.id },
+      include: [
+        { model: LigneCommande, include: [Produit] }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    const commandesJSON = commandes.map(commande => {
+      const commandeObj = commande.toJSON();
+      if (commandeObj.ligneCommandes) {
+        commandeObj.ligneCommandes = commandeObj.ligneCommandes.map(ligne => ({
+          ...ligne,
+          estSandwich: ligne.estSandwich || false
+        }));
+      }
+      return commandeObj;
+    });
+
+    res.status(200).json(commandesJSON);
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération des commandes', error });
+  }
+});
+
+
+// ===============================
+// 👤 Commandes d’un utilisateur (non auth)
+// ===============================
+router.get('/utilisateurs/:id/commandes', async (req, res) => {
   try {
     const commandes = await Commande.findAll({
       where: { utilisateurId: req.params.id },
       include: [
         {
           model: LigneCommande,
-          include: [Produit]
+          as: 'ligneCommandes',
+          include: [
+            { model: Produit, as: 'produit' },
+            {
+              model: LigneCommandeGarniture,
+              as: 'ligneGarnitures',
+              include: [{ model: Garniture, as: 'garniture' }]
+            }
+          ]
         }
       ],
-      order: [['dateRetrait', 'DESC']]
+      order: [['createdAt', 'DESC']]
     });
-    
-    // Transformer pour utiliser la description personnalisée
+
     const commandesJSON = commandes.map(commande => {
       const commandeObj = commande.toJSON();
       if (commandeObj.ligneCommandes) {
-        commandeObj.ligneCommandes = commandeObj.ligneCommandes.map(ligne => {
-          // Ne pas modifier le produit original mais ajouter des infos
-          return {
-            ...ligne,
-            // Garder l'information que c'est un sandwich si applicable
-            estSandwich: ligne.estSandwich || false
-          };
+        commandeObj.ligneCommandes.forEach(ligne => {
+          if (ligne.LigneCommandeGarnitures && ligne.LigneCommandeGarnitures.length > 0) {
+            ligne.garnitures = ligne.LigneCommandeGarnitures.map(lcg => lcg.Garniture.nom);
+          }
         });
       }
       return commandeObj;
     });
-    
+
     res.status(200).json(commandesJSON);
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la récupération des commandes', error });
   }
 });
 
-router.get('/utilisateurs/:id/commandes', async (req, res) => {
+
+// ===============================
+// ❌ Annuler une commande (et rembourser)
+// ===============================
+router.patch('/:id/annuler', verifyToken, async (req, res) => {
   try {
-    const commandes = await Commande.findAll({
-  where: { utilisateurId: req.params.id },
-  include: [
-    {
-      model: LigneCommande,
-      as: 'ligneCommandes', // ce nom doit être EXACTEMENT le même que celui défini dans les associations
+    const commande = await Commande.findByPk(req.params.id, {
       include: [
-        {
-          model: Produit,
-          as: 'produit',
-        },
-        {
-          model: LigneCommandeGarniture,
-          as: 'ligneGarnitures',
-          include: [
-            {
-              model: Garniture,
-              as: 'garniture',
-            },
-          ],
-        },
-      ],
-    },
-  ],
-});
-
-    
-    // Transformer les données pour faciliter leur utilisation côté client
-    const commandesJSON = commandes.map(commande => {
-      const commandeObj = commande.toJSON();
-      
-      // Pour chaque ligne de commande, récupérer ses garnitures
-      if (commandeObj.ligneCommandes) {
-        for (let i = 0; i < commandeObj.ligneCommandes.length; i++) {
-          const ligne = commandeObj.ligneCommandes[i];
-          
-          // Transformer les garnitures en tableau de noms pour faciliter l'affichage
-          if (ligne.LigneCommandeGarnitures && ligne.LigneCommandeGarnitures.length > 0) {
-            ligne.garnitures = ligne.LigneCommandeGarnitures.map(lcg => lcg.Garniture.nom);
-          }
-        }
-      }
-      
-      return commandeObj;
+        { model: LigneCommande, as: 'ligneCommandes' },
+        { model: Utilisateur, as: 'utilisateur' }
+      ]
     });
-    
-    res.status(200).json(commandesJSON);
-  } catch (error) {
-    res.status(500).json({ message: 'Erreur lors de la récupération des commandes', error });
+
+    if (!commande) return res.status(404).json({ message: 'Commande non trouvée' });
+    if (commande.statut !== 'en attente') {
+      return res.status(400).json({ message: 'Impossible d’annuler une commande qui a déjà été traitée.' });
+    }
+
+    const montantTotal = commande.ligneCommandes.reduce((total, ligne) => {
+      return total + ligne.quantite * ligne.prixUnitaire;
+    }, 0);
+
+    commande.statut = 'annulée';
+    await commande.save();
+
+    commande.utilisateur.solde += montantTotal;
+    await commande.utilisateur.save();
+
+    res.status(200).json({ message: 'Commande annulée et montant remboursé.' });
+  } catch (err) {
+    console.error('Erreur annulation commande :', err);
+    res.status(500).json({ message: 'Erreur serveur', error: err.message });
   }
 });
 
-// routes/boulanger.js
+
+// ===============================
+// 📆 Commandes du jour (interface boulanger)
+// ===============================
 router.get('/commandes-aujourdhui', verifyToken, async (req, res) => {
   try {
     const commandes = await Commande.findAll({
       where: {
         statut: 'en attente',
-        date: new Date().toISOString().split('T')[0], // filtre sur la date du jour
+        date: new Date().toISOString().split('T')[0],
       },
       include: [Utilisateur, Produit]
     });
@@ -176,11 +247,10 @@ router.get('/commandes-aujourdhui', verifyToken, async (req, res) => {
   }
 });
 
-module.exports = router;
 
-
-// Créer une nouvelle commande
-// Dans commandesRoutes.js, la fonction post pour créer une commande
+// ===============================
+// ➕ Créer une commande (panier, sandwich, pain, etc.)
+// ===============================
 router.post('/', verifyToken, async (req, res) => {
   const { produits, dateRetrait, trancheHoraireRetrait } = req.body;
   const utilisateurId = req.utilisateur.id;
@@ -194,20 +264,19 @@ router.post('/', verifyToken, async (req, res) => {
       utilisateurId,
       dateRetrait,
       trancheHoraireRetrait,
-      statut: 'en attente'
+      statut: 'en attente',
+      createdAt: new Date(),
+      updatedAt: new Date()
     });
 
     for (const produit of produits) {
-      // Vérifiez le format des données et utilisez le bon identifiant
       const produitId = produit.produitId || produit.id;
-      
       const produitBDD = await Produit.findByPk(produitId);
 
       if (!produitBDD) {
         return res.status(404).json({ message: `Produit ID ${produitId} non trouvé.` });
       }
 
-      // Créez la ligne de commande
       const ligneCommande = await LigneCommande.create({
         commandeId: nouvelleCommande.id,
         produitId: produitId,
@@ -216,31 +285,29 @@ router.post('/', verifyToken, async (req, res) => {
         description: produit.isSandwich ? produit.description : null,
         estSandwich: produit.isSandwich || produit.type === 'sandwich' || false
       });
-      
-      // Si c'est un sandwich avec des garnitures, les enregistrer
-      if ((produit.isSandwich || produit.type === 'sandwich') && produit.garnitures && produit.garnitures.length > 0) {
-        console.log("Garnitures pour sandwich:", produit.garnitures);
-        
-        // Pour chaque garniture, créer une entrée dans LigneCommandeGarniture
-        for (const garnitureName of produit.garnitures) {
-          try {
-            // Trouver la garniture par son nom
-            const garniture = await Garniture.findOne({ 
-              where: { nom: garnitureName } 
-            });
-            
-            if (garniture) {
-              // Créer l'association entre la ligne de commande et la garniture
+
+      if (produit.isSandwich || produit.type === 'sandwich') {
+        const typePainChoisi = produit.typePain || 'blanc';
+
+        if (produit.garnitures && produit.garnitures.length > 0) {
+          for (const garniture of produit.garnitures) {
+            const garnitureBDD = await Garniture.findByPk(garniture.id);
+            if (garnitureBDD) {
               await LigneCommandeGarniture.create({
                 ligneCommandeId: ligneCommande.id,
-                garnitureId: garniture.id
+                garnitureId: garnitureBDD.id,
+                typePain: typePainChoisi
               });
-              console.log(`Garniture ${garnitureName} ajoutée à la ligne de commande ${ligneCommande.id}`);
-            } else {
-              console.log(`Garniture ${garnitureName} non trouvée dans la base de données`);
             }
-          } catch (garnitureError) {
-            console.error(`Erreur lors de l'ajout de la garniture ${garnitureName}:`, garnitureError);
+          }
+        } else {
+          const premiereGarniture = await Garniture.findOne();
+          if (premiereGarniture) {
+            await LigneCommandeGarniture.create({
+              ligneCommandeId: ligneCommande.id,
+              garnitureId: premiereGarniture.id,
+              typePain: typePainChoisi
+            });
           }
         }
       }
@@ -254,28 +321,33 @@ router.post('/', verifyToken, async (req, res) => {
   }
 });
 
-// Mettre à jour une commande
+
+// ===============================
+// ✏️ Modifier une commande
+// ===============================
 router.put('/:id', async (req, res) => {
   try {
     const commande = await Commande.findByPk(req.params.id);
-    if (!commande) {
-      return res.status(404).json({ message: 'Commande non trouvée' });
-    }
+    if (!commande) return res.status(404).json({ message: 'Commande non trouvée' });
+
     const { dateCommande, dateRetrait, trancheHoraireRetrait, statut, description } = req.body;
     await commande.update({ dateCommande, dateRetrait, trancheHoraireRetrait, statut, description });
+
     res.status(200).json(commande);
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la mise à jour de la commande', error });
   }
 });
 
-// Supprimer une commande
+
+// ===============================
+// 🗑️ Supprimer une commande
+// ===============================
 router.delete('/:id', async (req, res) => {
   try {
     const commande = await Commande.findByPk(req.params.id);
-    if (!commande) {
-      return res.status(404).json({ message: 'Commande non trouvée' });
-    }
+    if (!commande) return res.status(404).json({ message: 'Commande non trouvée' });
+
     await commande.destroy();
     res.status(200).json({ message: 'Commande supprimée avec succès' });
   } catch (error) {

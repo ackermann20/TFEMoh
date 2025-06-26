@@ -2,7 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { Garniture } = require('../models');
 
-// Récupérer toutes les garnitures
+
+// ===============================
+// 🍖 Récupérer toutes les garnitures
+// ===============================
 router.get('/', async (req, res) => {
   try {
     const garnitures = await Garniture.findAll();
@@ -15,7 +18,10 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Récupérer une garniture spécifique
+
+// ===============================
+// 🔍 Récupérer une garniture par ID
+// ===============================
 router.get('/:id', async (req, res) => {
   try {
     const garniture = await Garniture.findByPk(req.params.id);
@@ -31,11 +37,14 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Créer une nouvelle garniture
+
+// ===============================
+// ➕ Créer une nouvelle garniture
+// ===============================
 router.post('/', async (req, res) => {
   try {
-    const { nom, prix, stock } = req.body;
-    const nouvelleGarniture = await Garniture.create({ nom, prix, stock });
+    const { nom, prix, disponible } = req.body;
+    const nouvelleGarniture = await Garniture.create({ nom, prix, disponible });
     res.status(201).json(nouvelleGarniture);
   } catch (error) {
     res.status(500).json({
@@ -45,15 +54,18 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Modifier une garniture existante
+
+// ===============================
+// ✏️ Modifier une garniture existante
+// ===============================
 router.put('/:id', async (req, res) => {
   try {
     const garniture = await Garniture.findByPk(req.params.id);
     if (!garniture) {
       return res.status(404).json({ message: 'Garniture non trouvée' });
     }
-    const { nom, prix, stock } = req.body;
-    await garniture.update({ nom, prix, stock });
+    const { nom, prix, disponible } = req.body;
+    await garniture.update({ nom, prix, disponible });
     res.status(200).json(garniture);
   } catch (error) {
     res.status(500).json({
@@ -63,7 +75,10 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Supprimer une garniture
+
+// ===============================
+// 🗑️ Supprimer une garniture
+// ===============================
 router.delete('/:id', async (req, res) => {
   try {
     const garniture = await Garniture.findByPk(req.params.id);

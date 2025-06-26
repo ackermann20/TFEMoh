@@ -1,33 +1,29 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class LigneCommande extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // Relation avec Commande
+      // Chaque ligne appartient à une commande
       LigneCommande.belongsTo(models.Commande, {
         foreignKey: 'commandeId',
         as: 'commande',
       });
 
+      // Chaque ligne peut avoir plusieurs garnitures
       LigneCommande.hasMany(models.LigneCommandeGarniture, {
         foreignKey: 'ligneCommandeId',
         as: 'ligneGarnitures',
       });
 
-      // Relation avec Produit
+      // Produit concerné
       LigneCommande.belongsTo(models.Produit, {
         foreignKey: 'produitId',
         as: 'produit',
-      });    }
-    
+      });
+    }
   }
+
   LigneCommande.init({
     commandeId: {
       type: DataTypes.INTEGER,
@@ -40,20 +36,19 @@ module.exports = (sequelize, DataTypes) => {
     quantite: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 1,
+      defaultValue: 1
     },
     prixUnitaire: {
       type: DataTypes.FLOAT,
       allowNull: false,
       defaultValue: 0
     }
-    
-    
   }, {
     sequelize,
     modelName: 'LigneCommande',
     tableName: 'LigneCommandes',
-    timestamps: true,
+    timestamps: true, // createdAt & updatedAt
   });
+
   return LigneCommande;
 };

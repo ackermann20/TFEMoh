@@ -1,17 +1,65 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 import { useTranslation } from 'react-i18next';
 
 const HeaderBoulanger = () => {
-  const user = JSON.parse(localStorage.getItem('userData'));
+  const navigate = useNavigate();
   const location = useLocation();
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [userName, setUserName] = useState('Boulanger');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { t, i18n } = useTranslation();
+
+  const checkLoginStatus = () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setIsLoggedIn(false);
+      setUserName('Boulanger');
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode(token);
+      const currentTime = Date.now() / 1000;
+      if (decoded.exp && decoded.exp < currentTime) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userData');
+        setIsLoggedIn(false);
+        setUserName('Boulanger');
+        return;
+      }
+
+      const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+      setUserName(userData.prenom || 'Boulanger');
+      setIsLoggedIn(true);
+    } catch (error) {
+      console.error('Erreur lors du décodage du token', error);
+      localStorage.removeItem('token');
+      setIsLoggedIn(false);
+      setUserName('Boulanger');
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userData');
+    setIsLoggedIn(false);
+    setShowProfileDropdown(false);
+    setIsMobileMenuOpen(false);
+    navigate('/login');
+    window.location.reload();
+  };
+
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (showDropdown && !event.target.closest('.profile-menu')) {
-        setShowDropdown(false);
+      if (showProfileDropdown && !event.target.closest('.profile-dropdown')) {
+        setShowProfileDropdown(false);
       }
     };
 
@@ -19,61 +67,141 @@ const HeaderBoulanger = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showDropdown]);
+  }, [showProfileDropdown]);
 
-  const isActive = (path) => {
-    return location.pathname === path;
-  };
+  useEffect(() => {
+    checkLoginStatus();
+  }, []);
 
   return (
-    <header className="bg-gradient-to-r from-amber-500 to-yellow-400 text-white p-4 shadow-lg">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            <span className="text-3xl mr-2">🥖</span>
-            <h1 className="text-2xl font-bold text-white">{t('espaceBoulanger')}</h1>
+    <header className="bg-gradient-to-r from-amber-50 to-orange-50 shadow-lg border-b border-amber-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Top bar avec logo et controls */}
+        <div className="flex justify-between items-center py-4">
+          {/* Logo */}
+          <div 
+            className="flex items-center cursor-pointer hover:scale-105 transition-transform duration-200" 
+            onClick={() => navigate('/boulanger')}
+          > 
+            <span className="text-4xl mr-3 drop-shadow-sm">🥖</span>
+            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-amber-800 to-orange-700 bg-clip-text text-transparent">
+              {t('espaceBoulanger', 'Espace Boulanger')}
+            </h1>
           </div>
 
-          <nav className="flex items-center space-x-4">
-            <Link 
-              to="/admin" 
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive('/admin') 
-                  ? 'bg-amber-700 text-white' 
-                  : 'text-white hover:bg-amber-600'
-              }`}
+          {/* Desktop controls */}
+          <div className="hidden lg:flex items-center gap-4">
+            {/* Language selector */}
+            <select
+              onChange={(e) => i18n.changeLanguage(e.target.value)}
+              defaultValue={i18n.language}
+              className="border border-amber-300 rounded-lg px-3 py-2 text-sm text-gray-700 bg-white hover:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
             >
-              {t('dashboard')}
-            </Link>
-            <Link 
-              to="/admin/products" 
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive('/admin/products') 
-                  ? 'bg-amber-700 text-white' 
-                  : 'text-white hover:bg-amber-600'
-              }`}
-            >
-              {t('produits')}
-            </Link>
-            <Link 
-              to="/admin/history" 
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive('/admin/history') 
-                  ? 'bg-amber-700 text-white' 
-                  : 'text-white hover:bg-amber-600'
-              }`}
-            >
-              {t('historique')}
-            </Link>
+              <option value="fr">Français</option>
+              <option value="en">English</option>
+              <option value="nl">Nederlands</option>
+            </select>
+          </div>
 
-            <div className="relative profile-menu ml-4">
+          {/* Mobile menu button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="lg:hidden p-2 rounded-lg text-amber-800 hover:bg-amber-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+            <svg 
+              className={`w-6 h-6 transition-transform duration-300 ${isMobileMenuOpen ? 'rotate-90' : ''}`} 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              {isMobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+        </div>
+
+        {/* Navigation */}
+        <nav className="hidden lg:flex items-center justify-center gap-2 pb-4">
+          <button 
+            onClick={() => navigate('/boulanger')} 
+            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+              isActive('/boulanger')
+                ? 'bg-amber-600 text-white shadow-lg'
+                : 'text-gray-700 hover:text-amber-600 hover:bg-amber-100'
+            }`}
+          >
+            📊 {t('dashboard.title', 'Tableau de bord')}
+          </button>
+
+          <button 
+            onClick={() => navigate('/boulanger/products')} 
+            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+              isActive('/boulanger/products')
+                ? 'bg-amber-600 text-white shadow-lg'
+                : 'text-gray-700 hover:text-amber-600 hover:bg-amber-100'
+            }`}
+          >
+            🍞 {t('products.title', 'Produits')}
+          </button>
+
+          <button 
+            onClick={() => navigate('/boulanger/clients')} 
+            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+              isActive('/boulanger/clients')
+                ? 'bg-amber-600 text-white shadow-lg'
+                : 'text-gray-700 hover:text-amber-600 hover:bg-amber-100'
+            }`}
+          >
+            👥 {t('clients.title', 'Clients')}
+          </button>
+
+          <button 
+            onClick={() => navigate('/boulanger/horaires')} 
+            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+              isActive('/boulanger/horaires')
+                ? 'bg-amber-600 text-white shadow-lg'
+                : 'text-gray-700 hover:text-amber-600 hover:bg-amber-100'
+            }`}
+          >
+            🕒 {t('horaires.title', 'Horaires d\'ouverture')}
+          </button>
+
+          <button 
+            onClick={() => navigate('/boulanger/history')} 
+            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+              isActive('/boulanger/history')
+                ? 'bg-amber-600 text-white shadow-lg'
+                : 'text-gray-700 hover:text-amber-600 hover:bg-amber-100'
+            }`}
+          >
+            📋 {t('historique', 'Historique')}
+          </button>
+
+          <button 
+            onClick={() => navigate('/boulanger/messages')} 
+            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+              isActive('/boulanger/messages')
+                ? 'bg-amber-600 text-white shadow-lg'
+                : 'text-gray-700 hover:text-amber-600 hover:bg-amber-100'
+            }`}
+          >
+            📥 {t('messagesContact', 'Messages')}
+          </button>
+
+
+          {isLoggedIn && (
+            <div className="relative profile-dropdown ml-4">
               <button
-                onClick={() => setShowDropdown(!showDropdown)}
-                className="flex items-center space-x-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md transition-colors"
+                onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+                className="flex items-center bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
               >
-                <span className="font-medium">{user?.prenom || 'Boulanger'}</span>
+                <span className="mr-2">👨‍🍳</span>
+                <span>{userName}</span>
                 <svg 
-                  className={`w-4 h-4 transition-transform ${showDropdown ? 'rotate-180' : ''}`} 
+                  className={`ml-2 w-4 h-4 transition-transform duration-200 ${showProfileDropdown ? 'rotate-180' : ''}`} 
                   fill="none" 
                   stroke="currentColor" 
                   viewBox="0 0 24 24"
@@ -81,47 +209,127 @@ const HeaderBoulanger = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              <select
-                onChange={(e) => i18n.changeLanguage(e.target.value)}
-                defaultValue={i18n.language}
-                className="border rounded px-2 py-1 text-sm text-amber-900 bg-white"
-              >
-                <option value="fr">FR</option>
-                <option value="en">EN</option>
-                <option value="nl">NL</option>
-              </select>
 
-              {showDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10">
-                  <Link
-                    to="/admin/profile"
-                    className="flex items-center w-full text-left px-4 py-2 text-gray-700 hover:bg-amber-100"
-                    onClick={() => setShowDropdown(false)}
+              {showProfileDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl py-2 z-50 border border-gray-200">
+                  <button 
+                    onClick={handleLogout} 
+                    className="flex items-center w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-200"
                   >
-                    <span className="mr-2">👤</span> {t('monProfil')}
-                  </Link>
-                  <Link
-                    to="/admin/settings"
-                    className="flex items-center w-full text-left px-4 py-2 text-gray-700 hover:bg-amber-100"
-                    onClick={() => setShowDropdown(false)}
-                  >
-                    <span className="mr-2">⚙️</span> {t('parametres')}
-                  </Link>
-                  <hr className="my-1 border-gray-200" />
-                  <button
-                    onClick={() => {
-                      localStorage.removeItem('token');
-                      localStorage.removeItem('userData');
-                      window.location.href = '/login';
-                    }}
-                    className="flex items-center w-full text-left px-4 py-2 text-red-600 hover:bg-red-100"
-                  >
-                    <span className="mr-2">🚪</span> {t('deconnexion')}
+                    <span className="mr-3 text-lg">🚪</span> 
+                    <span className="font-medium">{t('deconnexion', 'Déconnexion')}</span>
                   </button>
                 </div>
               )}
             </div>
-          </nav>
+          )}
+        </nav>
+
+        {/* Mobile menu */}
+        <div className={`lg:hidden transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'max-h-[90vh] overflow-y-auto opacity-100' : 'max-h-0 overflow-hidden opacity-0'}`}>
+
+          <div className="py-4 space-y-3 border-t border-amber-200">
+            {/* Mobile controls */}
+            <div className="flex flex-col gap-3 pb-3 border-b border-amber-200">
+              <select
+                onChange={(e) => i18n.changeLanguage(e.target.value)}
+                defaultValue={i18n.language}
+                className="border border-amber-300 rounded-lg px-3 py-2 text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+              >
+                <option value="fr">Français</option>
+                <option value="en">English</option>
+                <option value="nl">Nederlands</option>
+              </select>
+            </div>
+
+            {/* Mobile navigation */}
+            <button 
+              onClick={() => { navigate('/boulanger'); setIsMobileMenuOpen(false); }} 
+              className={`flex items-center w-full text-left px-4 py-3 rounded-lg transition-colors duration-200 ${
+                isActive('/boulanger')
+                  ? 'bg-amber-600 text-white shadow-lg'
+                  : 'text-gray-700 hover:bg-amber-100 hover:text-amber-700'
+              }`}
+            >
+              <span className="mr-3 text-lg">📊</span> 
+              <span className="font-medium">{t('dashboard.title', 'Tableau de bord')}</span>
+            </button>
+
+            <button 
+              onClick={() => { navigate('/boulanger/products'); setIsMobileMenuOpen(false); }} 
+              className={`flex items-center w-full text-left px-4 py-3 rounded-lg transition-colors duration-200 ${
+                isActive('/boulanger/products')
+                  ? 'bg-amber-600 text-white shadow-lg'
+                  : 'text-gray-700 hover:bg-amber-100 hover:text-amber-700'
+              }`}
+            >
+              <span className="mr-3 text-lg">🍞</span> 
+              <span className="font-medium">{t('products.title', 'Produits')}</span>
+            </button>
+
+            <button 
+              onClick={() => { navigate('/boulanger/clients'); setIsMobileMenuOpen(false); }} 
+              className={`flex items-center w-full text-left px-4 py-3 rounded-lg transition-colors duration-200 ${
+                isActive('/boulanger/clients')
+                  ? 'bg-amber-600 text-white shadow-lg'
+                  : 'text-gray-700 hover:bg-amber-100 hover:text-amber-700'
+              }`}
+            >
+              <span className="mr-3 text-lg">👥</span> 
+              <span className="font-medium">{t('clients.title', 'Clients')}</span>
+            </button>
+
+            <button 
+              onClick={() => { navigate('/boulanger/horaires'); setIsMobileMenuOpen(false); }} 
+              className={`flex items-center w-full text-left px-4 py-3 rounded-lg transition-colors duration-200 ${
+                isActive('/boulanger/horaires')
+                  ? 'bg-amber-600 text-white shadow-lg'
+                  : 'text-gray-700 hover:bg-amber-100 hover:text-amber-700'
+              }`}
+            >
+              <span className="mr-3 text-lg">🕒</span> 
+              <span className="font-medium">{t('horaires.title', 'Horaires d\'ouverture')}</span>
+            </button>
+
+            <button 
+              onClick={() => { navigate('/boulanger/history'); setIsMobileMenuOpen(false); }} 
+              className={`flex items-center w-full text-left px-4 py-3 rounded-lg transition-colors duration-200 ${
+                isActive('/boulanger/history')
+                  ? 'bg-amber-600 text-white shadow-lg'
+                  : 'text-gray-700 hover:bg-amber-100 hover:text-amber-700'
+              }`}
+            >
+              <span className="mr-3 text-lg">📋</span> 
+              <span className="font-medium">{t('historique', 'Historique')}</span>
+            </button>
+
+            <button 
+              onClick={() => { navigate('/boulanger/messages'); setIsMobileMenuOpen(false); }} 
+              className="flex items-center w-full text-left px-4 py-3 text-gray-700 hover:bg-amber-100 hover:text-amber-700 rounded-lg transition-colors duration-200"
+            >
+              <span className="mr-3 text-lg">📥</span> 
+              <span className="font-medium">{t('messagesContact')}</span>
+            </button>
+
+
+            {isLoggedIn && (
+              <div className="space-y-2 border-t border-amber-200 pt-3">
+                <div className="px-4 py-2 bg-amber-100 rounded-lg">
+                  <span className="font-semibold text-amber-800">
+                    👨‍🍳 {userName}
+                  </span>
+                </div>
+                
+                <button 
+                  onClick={handleLogout} 
+                  className="flex items-center w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors duration-200"
+                >
+                  <span className="mr-3 text-lg">🚪</span> 
+                  <span className="font-medium">{t('deconnexion', 'Déconnexion')}</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>
