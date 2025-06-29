@@ -1,10 +1,32 @@
-const { sequelize, LigneCommande, Garniture, LigneCommandeGarniture, Produit, Commande, Utilisateur } = require('./models');
+const {
+  sequelize,
+  LigneCommande,
+  Garniture,
+  LigneCommandeGarniture,
+  Produit,
+  Commande,
+  Utilisateur
+} = require('../models');
 
-async function testLigneCommandeGarniture() {
-  try {
-    await sequelize.sync({ force: true });
+beforeAll(async () => {
+  await sequelize.sync();
+});
 
-    // Crée un utilisateur
+afterAll(async () => {
+  await sequelize.close();
+});
+
+describe('LigneCommandeGarniture Model', () => {
+  afterEach(async () => {
+    await LigneCommandeGarniture.destroy({ where: {} });
+    await LigneCommande.destroy({ where: {} });
+    await Garniture.destroy({ where: {} });
+    await Produit.destroy({ where: {} });
+    await Commande.destroy({ where: {} });
+    await Utilisateur.destroy({ where: {} });
+  });
+
+  it('devrait créer une LigneCommandeGarniture liée', async () => {
     const utilisateur = await Utilisateur.create({
       nom: 'Jordan',
       prenom: 'Michael',
@@ -12,9 +34,9 @@ async function testLigneCommandeGarniture() {
       telephone: '555298298',
       motDePasse: 'password123',
       role: 'client',
+      solde: 0,
     });
 
-    // Crée une commande
     const commande = await Commande.create({
       utilisateurId: utilisateur.id,
       dateCommande: new Date(),
@@ -24,41 +46,35 @@ async function testLigneCommandeGarniture() {
       description: 'Commande avec garniture',
     });
 
-    // Crée un produit
     const produit = await Produit.create({
       nom: 'Sandwich',
       prix: 5.0,
-      stock: 20,
       description: 'Sandwich jambon-beurre',
+      disponible: true,
       image: 'sandwich.jpg',
     });
 
-    // Crée une ligne de commande
     const ligneCommande = await LigneCommande.create({
       commandeId: commande.id,
       produitId: produit.id,
       quantite: 1,
+      prixUnitaire: produit.prix,
     });
 
-    // Crée une garniture
     const garniture = await Garniture.create({
       nom: 'Salade',
       prix: 0.5,
-      stock: 100,
+      disponible: true,
+      image: 'salade.jpg'
     });
 
-    // Associe la garniture à la ligne de commande
     const ligneCommandeGarniture = await LigneCommandeGarniture.create({
       ligneCommandeId: ligneCommande.id,
       garnitureId: garniture.id,
+      typePain: 'blanc',
     });
 
-    console.log('LigneCommandeGarniture ajoutée :', ligneCommandeGarniture.toJSON());
-  } catch (error) {
-    console.error('Erreur lors du test de LigneCommandeGarniture :', error);
-  } finally {
-    await sequelize.close();
-  }
-}
-
-testLigneCommandeGarniture();
+    expect(ligneCommandeGarniture).toBeDefined();
+    expect(ligneCommandeGarniture.typePain).toBe('blanc');
+  });
+});

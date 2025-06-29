@@ -1,10 +1,22 @@
-const { sequelize, LigneCommande, Produit, Commande, Utilisateur } = require('./models');
+const { sequelize, LigneCommande, Produit, Commande, Utilisateur } = require('../models');
 
-async function testLigneCommande() {
-  try {
-    await sequelize.sync({ force: true });
+beforeAll(async () => {
+  await sequelize.sync();
+});
 
-    // Crée un utilisateur
+afterAll(async () => {
+  await sequelize.close();
+});
+
+describe('LigneCommande Model', () => {
+  afterEach(async () => {
+    await LigneCommande.destroy({ where: {} });
+    await Commande.destroy({ where: {} });
+    await Produit.destroy({ where: {} });
+    await Utilisateur.destroy({ where: {} });
+  });
+
+  it('devrait créer une ligne de commande', async () => {
     const utilisateur = await Utilisateur.create({
       nom: 'azerty',
       prenom: 'azerty',
@@ -12,9 +24,9 @@ async function testLigneCommande() {
       telephone: '0478965441',
       motDePasse: 'azerty',
       role: 'client',
+      solde: 0,
     });
 
-    // Crée une commande
     const commande = await Commande.create({
       utilisateurId: utilisateur.id,
       dateCommande: new Date(),
@@ -24,28 +36,23 @@ async function testLigneCommande() {
       description: 'Commande test',
     });
 
-    // Crée un produit
     const produit = await Produit.create({
       nom: 'Croissant',
       prix: 1.5,
-      stock: 50,
       description: 'Croissant au beurre',
+      disponible: true,
       image: 'croissant.jpg',
     });
 
-    // Ajoute une ligne de commande
     const ligneCommande = await LigneCommande.create({
       commandeId: commande.id,
       produitId: produit.id,
       quantite: 2,
+      prixUnitaire: produit.prix,
     });
 
-    console.log('Ligne de commande ajoutée :', ligneCommande.toJSON());
-  } catch (error) {
-    console.error('Erreur lors du test de ligne commande :', error);
-  } finally {
-    await sequelize.close();
-  }
-}
-
-testLigneCommande();
+    expect(ligneCommande).toBeDefined();
+    expect(ligneCommande.quantite).toBe(2);
+    expect(ligneCommande.produitId).toBe(produit.id);
+  });
+});
