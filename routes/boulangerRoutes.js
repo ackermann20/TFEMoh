@@ -224,7 +224,7 @@ router.get('/commandes-by-date', verifyToken, async (req, res) => {
 
 
 // ===============================
-// 🔁 Mettre à jour le statut d’une commande
+// 🔁 Mettre à jour le statut d'une commande
 // ===============================
 router.put('/commandes/:id/statut', verifyToken, async (req, res) => {
   try {
@@ -246,32 +246,51 @@ router.put('/commandes/:id/statut', verifyToken, async (req, res) => {
 
     await commande.save();
 
+    // ✅ CORRECTION : Remboursement lors de l'annulation
     if (statut === 'annulé') {
       const utilisateur = await Utilisateur.findByPk(commande.utilisateurId);
-      const lignes = await LigneCommande.findAll({
-        where: { commandeId: commande.id },
-        include: [
-          { model: Produit, as: 'produit' },
-          {
-            model: LigneCommandeGarniture,
-            as: 'ligneGarnitures',
-            include: [{ model: Garniture, as: 'garniture' }]
-          }
-        ]
-      });
-
-      let montantTotal = 0;
-      lignes.forEach(ligne => {
-        let prixLigne = ligne.quantite * ligne.produit.prix;
-        ligne.ligneGarnitures.forEach(lg => {
-          prixLigne += lg.garniture.prix;
-        });
-        montantTotal += prixLigne;
-      });
-
+      
       if (utilisateur) {
-        utilisateur.solde += montantTotal;
-        await utilisateur.save();
+        let montantARembouser = 0;
+        
+        // 1. Essayer d'utiliser le prixTotal de la commande
+        if (commande.prixTotal && commande.prixTotal > 0) {
+          montantARembouser = parseFloat(commande.prixTotal);
+          console.log(`Remboursement depuis prixTotal: ${montantARembouser}€`);
+        } else {
+          // 2. Si pas de prixTotal, recalculer depuis les lignes de commande
+          const lignes = await LigneCommande.findAll({
+            where: { commandeId: commande.id },
+            include: [
+              { model: Produit, as: 'produit' },
+              {
+                model: LigneCommandeGarniture,
+                as: 'ligneGarnitures',
+                include: [{ model: Garniture, as: 'garniture' }]
+              }
+            ]
+          });
+
+          lignes.forEach(ligne => {
+            // Utiliser prixUnitaire de la ligne si disponible, sinon prix du produit
+            const prixUnitaire = ligne.prixUnitaire || ligne.produit.prix;
+            let prixLigne = ligne.quantite * prixUnitaire;
+            
+            ligne.ligneGarnitures.forEach(lg => {
+              prixLigne += lg.garniture.prix;
+            });
+            montantARembouser += prixLigne;
+          });
+          console.log(`Remboursement recalculé: ${montantARembouser}€`);
+        }
+        
+        if (montantARembouser > 0) {
+          utilisateur.solde += montantARembouser;
+          await utilisateur.save();
+          console.log(`Commande ${commande.id} annulée - Remboursement de ${montantARembouser}€ à ${utilisateur.prenom} ${utilisateur.nom} (nouveau solde: ${utilisateur.solde}€)`);
+        } else {
+          console.log(`Aucun montant à rembourser pour la commande ${commande.id}`);
+        }
       }
     }
 
