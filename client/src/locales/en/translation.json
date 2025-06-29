@@ -63,6 +63,8 @@
   "matin": "Morning (7am - 11am)",
   "midi": "Noon (11am - 2pm)",
   "soir": "Evening (2pm - 7pm)",
+  "choixDuPain": "Bread choice:",
+  "painChoisi": "Selected bread:",
   "bakerDashboard.title": "Orders to prepare",
   "bakerDashboard.filterByStatus": "Filter by status:",
   "bakerDashboard.searchPlaceholder": "Search by first/last name...",

@@ -97,6 +97,34 @@ const CustomizeSandwichClient = () => {
    );
  };
 
+ const getNomPain = (nomPain) => {
+  const pains = {
+    blanc: {
+      fr: 'blanc',
+      en: 'white',
+      nl: 'wit'
+    },
+    complet: {
+      fr: 'complet',
+      en: 'wholemeal',
+      nl: 'volkoren'
+    },
+    demiGris: {
+      fr: 'demi-gris',
+      en: 'half-white',
+      nl: 'half-grijs'
+    },
+    gris: {
+      fr: 'gris',
+      en: 'gray',
+      nl: 'grijs'
+    }
+  };
+
+  return pains[nomPain]?.[i18n.language] || nomPain;
+};
+
+
  // Fonction pour ajouter/retirer une garniture de la sélection
  const toggleGarniture = (garnitureId) => {
    setSelectedGarnitures((prev) =>
@@ -378,21 +406,35 @@ const CustomizeSandwichClient = () => {
                  
                  {/* Sélecteur de type de pain */}
                  <div className="mt-4">
-                   <label className="block text-gray-700 font-medium mb-2">Choix du pain :</label>
+                   <label className="block text-gray-700 font-medium mb-2">
+                    {t('choixDuPain', 'Choix du pain :')}
+                  </label>
+
                    <select
                      value={typePain}
                      onChange={(e) => setTypePain(e.target.value)}
                      className="w-full p-2 border border-gray-300 rounded-md"
                    >
-                     <option value="blanc">Pain blanc</option>
-                     <option value="gris">Pain gris</option>
+                     <option value="blanc">
+                        {t('painBlanc', getNomPain('blanc'))}
+                      </option>
+                      <option value="gris">
+                        {t('painGris', getNomPain('gris'))}
+                      </option>
+
                    </select>
                  </div>
                  
                  {/* Affichage du pain choisi */}
                  <div className="flex justify-between items-center py-2">
-                   <span className="text-gray-600 font-medium">Pain choisi :</span>
-                   <span className="text-amber-700 font-semibold capitalize">{typePain}</span>
+                   <span className="text-gray-600 font-medium">
+                    {t('painChoisi', 'Pain choisi :')}
+                  </span>
+
+                   <span className="text-amber-700 font-semibold capitalize">
+                      {getNomPain(typePain)}
+                   </span>
+
                  </div>
                  
                  {/* Total final */}

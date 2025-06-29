@@ -334,7 +334,5 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-// Debug: Afficher toutes les routes au démarrage
-console.log('🚀 Routes utilisateurs chargées avec suppression de compte !');
 
 module.exports = router;

@@ -144,7 +144,13 @@ function CartClient() {
        fr: 'demi-gris',
        en: 'half-white',
        nl: 'half-grijs'
-     }
+     },
+     
+    gris: {
+      fr: 'gris',
+      en: 'gray',
+      nl: 'grijs'
+    }
    };
 
    return pains[nomPain]?.[i18n.language] || nomPain;

@@ -118,6 +118,35 @@ const DashboardBoulanger = () => {
     );
   };
 
+  const getNomPain = (nomPain) => {
+  const pains = {
+    blanc: {
+      fr: 'blanc',
+      en: 'white',
+      nl: 'wit'
+    },
+    complet: {
+      fr: 'complet',
+      en: 'wholemeal',
+      nl: 'volkoren'
+    },
+    demiGris: {
+      fr: 'demi-gris',
+      en: 'half-white',
+      nl: 'half-grijs'
+    }
+    ,
+    gris: {
+      fr: 'gris',
+      en: 'gray',
+      nl: 'grijs'
+    }
+  };
+
+  return pains[nomPain]?.[i18n.language] || nomPain;
+};
+
+
   /**
    * Récupère le nom de la garniture dans la langue sélectionnée
    * @param {Object} garniture - L'objet garniture
@@ -662,7 +691,7 @@ const DashboardBoulanger = () => {
                             {isSandwich(prod) && (
                               <div className="ml-4 mt-1">
                                 <span className="text-xs text-gray-600 bg-orange-100 px-2 py-0.5 rounded-full flex items-center w-fit">
-                                  🥖 Pain : <span className="capitalize font-medium ml-1">{getTypePain(prod)}</span>
+                                  🥖 {t('pain')} : <span className="capitalize font-medium ml-1">{getNomPain(getTypePain(prod))}</span>
                                 </span>
                               </div>
                             )}

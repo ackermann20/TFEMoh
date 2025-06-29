@@ -31,7 +31,8 @@ router.get('/commandes-aujourdhui', verifyToken, async (req, res) => {
             {
               model: Produit,
               as: 'produit',
-              attributes: ['id', 'nom', 'prix', 'description', 'type']
+              attributes: ['id', 'nom', 'nom_en', 'nom_nl', 'prix', 'description', 'type']
+
             },
             {
               model: LigneCommandeGarniture,
@@ -41,7 +42,8 @@ router.get('/commandes-aujourdhui', verifyToken, async (req, res) => {
                 {
                   model: Garniture,
                   as: 'garniture',
-                  attributes: ['id', 'nom', 'prix']
+                  attributes: ['id', 'nom', 'nom_en', 'nom_nl', 'prix']
+
                 }
               ]
             }
@@ -71,8 +73,10 @@ router.get('/commandes-aujourdhui', verifyToken, async (req, res) => {
           }
 
           return {
-            id: garniture.id,
+             id: garniture.id,
             nom: garniture.nom,
+            nom_en: garniture.nom_en,
+            nom_nl: garniture.nom_nl,
             prix: garniture.prix,
             typePain: lcg.typePain
           };
@@ -83,6 +87,8 @@ router.get('/commandes-aujourdhui', verifyToken, async (req, res) => {
         return {
           id: produit.id,
           nom: produit.nom,
+          nom_en: produit.nom_en,
+          nom_nl: produit.nom_nl,
           prix: produit.prix,
           description: produit.description,
           categorie: produit.categorie,
@@ -142,8 +148,9 @@ router.get('/commandes-by-date', verifyToken, async (req, res) => {
             {
               model: Produit,
               as: 'produit',
-              attributes: ['id', 'nom', 'prix', 'type']
-            },
+              attributes: ['id', 'nom', 'nom_en', 'nom_nl', 'prix', 'type']
+            }
+            ,
             {
               model: LigneCommandeGarniture,
               as: 'ligneGarnitures',
@@ -152,8 +159,9 @@ router.get('/commandes-by-date', verifyToken, async (req, res) => {
                 {
                   model: Garniture,
                   as: 'garniture',
-                  attributes: ['id', 'nom', 'prix']
+                  attributes: ['id', 'nom', 'nom_en', 'nom_nl', 'prix']
                 }
+
               ]
             }
           ]
@@ -170,22 +178,28 @@ router.get('/commandes-by-date', verifyToken, async (req, res) => {
           if (lg.typePain && !typePain) typePain = lg.typePain;
 
           return {
-            id: lg.garniture.id,
-            nom: lg.garniture.nom,
-            prix: lg.garniture.prix,
-            typePain: lg.typePain
+          id: lg.garniture.id,
+          nom: lg.garniture.nom,
+          nom_en: lg.garniture.nom_en,
+          nom_nl: lg.garniture.nom_nl,
+          prix: lg.garniture.prix,
+          typePain: lg.typePain
           };
+
         });
 
         return {
           id: ligne.produit.id,
           nom: ligne.produit.nom,
+          nom_en: ligne.produit.nom_en,
+          nom_nl: ligne.produit.nom_nl,
           prix: ligne.prixUnitaire,
           quantite: ligne.quantite,
           type: ligne.produit.type,
           garnitures,
           typePain
         };
+
       });
 
       return {

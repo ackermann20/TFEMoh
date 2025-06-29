@@ -66,6 +66,8 @@
   "matin": "Matin (7h - 11h)",
   "midi": "Midi (11h - 14h)",
   "soir": "Soir (14h - 19h)",
+  "choixDuPain": "Choix du pain :",
+  "painChoisi": "Pain choisi :",
   "bakerDashboard.title": "Commandes à préparer",
   "bakerDashboard.filterByStatus": "Filtrer par statut:",
   "bakerDashboard.searchPlaceholder": "Rechercher par nom/prénom...",
