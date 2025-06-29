@@ -4,14 +4,25 @@ import { jwtDecode } from 'jwt-decode';
 import { useTranslation } from 'react-i18next';
 
 const HeaderClient = () => {
+  // Hook pour navigation
   const navigate = useNavigate();
+
+  // États :
+  // - nom de l'utilisateur connecté
+  // - solde de l'utilisateur
+  // - statut de connexion
+  // - affichage du dropdown profil
+  // - ouverture du menu mobile
   const [userName, setUserName] = useState('Utilisateur');
   const [userSolde, setUserSolde] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Hook de traduction
   const { t, i18n } = useTranslation();
 
+  // Vérifie si l'utilisateur est connecté et récupère ses infos
   const checkLoginStatus = () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -23,6 +34,8 @@ const HeaderClient = () => {
     try {
       const decoded = jwtDecode(token);
       const currentTime = Date.now() / 1000;
+
+      // Déconnexion si le token est expiré
       if (decoded.exp && decoded.exp < currentTime) {
         localStorage.removeItem('token');
         localStorage.removeItem('userData');
@@ -32,6 +45,7 @@ const HeaderClient = () => {
         return;
       }
 
+      // Récupération des données utilisateur
       const userData = JSON.parse(localStorage.getItem('userData') || '{}');
       setUserName(userData.prenom || 'Utilisateur');
       setUserSolde(userData.solde || 0);
@@ -44,6 +58,7 @@ const HeaderClient = () => {
     }
   };
 
+  // Déconnexion de l'utilisateur
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
@@ -55,6 +70,7 @@ const HeaderClient = () => {
     window.location.reload();
   };
 
+  // Ferme le dropdown profil si on clique à l’extérieur
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (showProfileDropdown && !event.target.closest('.profile-dropdown')) {
@@ -68,6 +84,7 @@ const HeaderClient = () => {
     };
   }, [showProfileDropdown]);
 
+  // Vérifie le statut de connexion au montage
   useEffect(() => {
     checkLoginStatus();
   }, []);
@@ -75,9 +92,9 @@ const HeaderClient = () => {
   return (
     <header className="bg-gradient-to-r from-amber-50 to-orange-50 shadow-lg border-b border-amber-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top bar avec logo et controls */}
+        {/* Top bar avec logo et contrôles */}
         <div className="flex justify-between items-center py-4">
-          {/* Logo */}
+          {/* Logo cliquable vers la page d'accueil */}
           <div 
             className="flex items-center cursor-pointer hover:scale-105 transition-transform duration-200" 
             onClick={() => navigate('/')}
@@ -88,9 +105,8 @@ const HeaderClient = () => {
             </h1>
           </div>
 
-          {/* Desktop controls */}
+          {/* Contrôles desktop : sélecteur de langue + solde */}
           <div className="hidden lg:flex items-center gap-4">
-            {/* Language selector */}
             <select
               onChange={(e) => i18n.changeLanguage(e.target.value)}
               defaultValue={i18n.language}
@@ -101,7 +117,7 @@ const HeaderClient = () => {
               <option value="nl"> Nederlands </option>
             </select>
 
-            {/* Solde */}
+            {/* Solde affiché si connecté */}
             {isLoggedIn && (
               <div className="bg-white border border-amber-300 rounded-lg px-4 py-2 shadow-sm">
                 <span className="font-semibold text-amber-800 text-sm">
@@ -111,11 +127,12 @@ const HeaderClient = () => {
             )}
           </div>
 
-          {/* Mobile menu button */}
+          {/* Bouton menu mobile visible uniquement sur petits écrans */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="lg:hidden p-2 rounded-lg text-amber-800 hover:bg-amber-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
           >
+            {/* Icône burger ou croix selon l’état du menu */}
             <svg 
               className={`w-6 h-6 transition-transform duration-300 ${isMobileMenuOpen ? 'rotate-90' : ''}`} 
               fill="none" 
@@ -131,8 +148,9 @@ const HeaderClient = () => {
           </button>
         </div>
 
-        {/* Navigation Desktop */}
+        {/* Menu de navigation desktop */}
         <nav className="hidden lg:flex items-center justify-center gap-2 pb-4">
+          {/* Liens de navigation */}
           <button 
             onClick={() => navigate('/')} 
             className="px-4 py-2 rounded-lg font-medium text-gray-700 hover:text-amber-600 hover:bg-amber-100 transition-all duration-200"
@@ -160,6 +178,7 @@ const HeaderClient = () => {
             🛒 {t('panier')}
           </button>
 
+          {/* Si connecté, affichage du profil avec dropdown */}
           {isLoggedIn ? (
             <div className="relative profile-dropdown">
               <button
@@ -178,6 +197,7 @@ const HeaderClient = () => {
                 </svg>
               </button>
 
+              {/* Dropdown du profil utilisateur */}
               {showProfileDropdown && (
                 <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl py-2 z-50 border border-gray-200">
                   <button 
@@ -222,11 +242,10 @@ const HeaderClient = () => {
           )}
         </nav>
 
-        {/* Mobile menu */}
+        {/* Menu mobile */}
         <div className={`lg:hidden transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'max-h-[90vh] overflow-y-auto opacity-100' : 'max-h-0 overflow-hidden opacity-0'}`}>
-
           <div className="py-4 space-y-3 border-t border-amber-200">
-            {/* Mobile controls */}
+            {/* Contrôles mobile : langue et solde */}
             <div className="flex flex-col sm:flex-row gap-3 pb-3 border-b border-amber-200">
               <select
                 onChange={(e) => i18n.changeLanguage(e.target.value)}
@@ -238,6 +257,7 @@ const HeaderClient = () => {
                 <option value="nl"> Nederlands </option>
               </select>
 
+              {/* Solde si connecté */}
               {isLoggedIn && (
                 <div className="bg-white border border-amber-300 rounded-lg px-4 py-2 text-center">
                   <span className="font-semibold text-amber-800 text-sm">
@@ -247,7 +267,7 @@ const HeaderClient = () => {
               )}
             </div>
 
-            {/* Mobile navigation - Navigation principale */}
+            {/* Navigation mobile */}
             <button 
               onClick={() => { navigate('/'); setIsMobileMenuOpen(false); }} 
               className="flex items-center w-full text-left px-4 py-3 text-gray-700 hover:bg-amber-100 hover:text-amber-700 rounded-lg transition-colors duration-200"
@@ -279,45 +299,42 @@ const HeaderClient = () => {
               <span>{t('panier')}</span>
             </button>
 
-
-            {/* Section profil utilisateur */}
+            {/* Section profil utilisateur mobile */}
             {isLoggedIn ? (
-  <>
-    <button 
-      onClick={() => { navigate('/profile'); setIsMobileMenuOpen(false); }} 
-      className="flex items-center w-full text-left px-4 py-3 text-gray-700 hover:bg-amber-100 hover:text-amber-700 rounded-lg transition-colors duration-200"
-    >
-      <span className="mr-3 text-lg">👤</span> 
-      <span className="font-medium">{t('monProfil')}</span>
-    </button>
+              <>
+                <button 
+                  onClick={() => { navigate('/profile'); setIsMobileMenuOpen(false); }} 
+                  className="flex items-center w-full text-left px-4 py-3 text-gray-700 hover:bg-amber-100 hover:text-amber-700 rounded-lg transition-colors duration-200"
+                >
+                  <span className="mr-3 text-lg">👤</span> 
+                  <span className="font-medium">{t('monProfil')}</span>
+                </button>
 
-    <button 
-      onClick={() => { navigate('/orders'); setIsMobileMenuOpen(false); }} 
-      className="flex items-center w-full text-left px-4 py-3 text-gray-700 hover:bg-amber-100 hover:text-amber-700 rounded-lg transition-colors duration-200"
-    >
-      <span className="mr-3 text-lg">📋</span> 
-      <span className="font-medium">{t('mesCommandes')}</span>
-    </button>
+                <button 
+                  onClick={() => { navigate('/orders'); setIsMobileMenuOpen(false); }} 
+                  className="flex items-center w-full text-left px-4 py-3 text-gray-700 hover:bg-amber-100 hover:text-amber-700 rounded-lg transition-colors duration-200"
+                >
+                  <span className="mr-3 text-lg">📋</span> 
+                  <span className="font-medium">{t('mesCommandes')}</span>
+                </button>
 
-    <button 
-      onClick={handleLogout} 
-      className="flex items-center w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors duration-200"
-    >
-      <span className="mr-3 text-lg">🚪</span> 
-      <span className="font-medium">{t('deconnexion')}</span>
-    </button>
-  </>
-) : (
-  <button 
-    onClick={() => { navigate('/login'); setIsMobileMenuOpen(false); }} 
-    className="flex items-center w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-3 rounded-lg font-medium shadow-lg"
-  >
-    <span className="mr-3 text-lg">🔑</span> 
-    <span>{t('connexion')}</span>
-  </button>
-)}
-
-
+                <button 
+                  onClick={handleLogout} 
+                  className="flex items-center w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors duration-200"
+                >
+                  <span className="mr-3 text-lg">🚪</span> 
+                  <span className="font-medium">{t('deconnexion')}</span>
+                </button>
+              </>
+            ) : (
+              <button 
+                onClick={() => { navigate('/login'); setIsMobileMenuOpen(false); }} 
+                className="flex items-center w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-3 rounded-lg font-medium shadow-lg"
+              >
+                <span className="mr-3 text-lg">🔑</span> 
+                <span>{t('connexion')}</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -4,11 +4,18 @@ import { Filter, X, ChevronDown } from 'lucide-react';
 
 const ProductFilter = ({ produits, onFilterChange, selectedTypes = [] }) => {
   const { t } = useTranslation();
+
+  // Etat d'ouverture du panneau de filtre
   const [isOpen, setIsOpen] = useState(false);
+
+  // Liste des types de produits disponibles
   const [productTypes, setProductTypes] = useState([]);
+
+  // Types actuellement sélectionnés comme filtres
   const [activeFilters, setActiveFilters] = useState(selectedTypes);
 
-  // Extraire les types de produits uniques avec leurs comptes
+  // Lors du montage ou quand la liste des produits change
+  // On calcule la liste unique des types présents avec leur nombre d'occurrences
   useEffect(() => {
     if (!produits || produits.length === 0) return;
 
@@ -27,7 +34,9 @@ const ProductFilter = ({ produits, onFilterChange, selectedTypes = [] }) => {
     setProductTypes(types.sort((a, b) => a.label.localeCompare(b.label)));
   }, [produits]);
 
-  // Obtenir le label traduit pour chaque type
+  /**
+   * Retourne le libellé traduit pour un type donné
+   */
   const getTypeLabel = (type) => {
     const typeLabels = {
       pain: t('typePain', 'Pain'),
@@ -41,7 +50,9 @@ const ProductFilter = ({ produits, onFilterChange, selectedTypes = [] }) => {
     return typeLabels[type] || type.charAt(0).toUpperCase() + type.slice(1);
   };
 
-  // Obtenir la couleur du badge pour chaque type
+  /**
+   * Retourne les couleurs de badge pour chaque type
+   */
   const getTypeBadgeColor = (type) => {
     const colors = {
       pain: 'bg-amber-100 text-amber-800 border-amber-200',
@@ -54,7 +65,9 @@ const ProductFilter = ({ produits, onFilterChange, selectedTypes = [] }) => {
     return colors[type] || colors.autre;
   };
 
-  // Obtenir l'icône pour chaque type
+  /**
+   * Retourne un emoji représentatif d'un type
+   */
   const getTypeIcon = (type) => {
     switch (type) {
       case 'pain':
@@ -72,7 +85,9 @@ const ProductFilter = ({ produits, onFilterChange, selectedTypes = [] }) => {
     }
   };
 
-  // Gérer la sélection/désélection d'un type
+  /**
+   * Ajoute ou enlève un type des filtres actifs
+   */
   const toggleType = (type) => {
     let newFilters;
     if (activeFilters.includes(type)) {
@@ -85,14 +100,18 @@ const ProductFilter = ({ produits, onFilterChange, selectedTypes = [] }) => {
     onFilterChange(newFilters);
   };
 
-  // Réinitialiser tous les filtres
+  /**
+   * Vide tous les filtres
+   */
   const clearAllFilters = () => {
     setActiveFilters([]);
     onFilterChange([]);
     setIsOpen(false);
   };
 
-  // Sélectionner tous les types
+  /**
+   * Active tous les types comme filtres
+   */
   const selectAllTypes = () => {
     const allTypes = productTypes.map(pt => pt.type);
     setActiveFilters(allTypes);
@@ -101,7 +120,7 @@ const ProductFilter = ({ produits, onFilterChange, selectedTypes = [] }) => {
 
   return (
     <div className="relative">
-      {/* Bouton principal du filtre - version compacte */}
+      {/* Bouton principal du filtre */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 bg-white border-2 border-amber-300 rounded-xl px-4 py-3 hover:bg-amber-50 transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
@@ -110,6 +129,7 @@ const ProductFilter = ({ produits, onFilterChange, selectedTypes = [] }) => {
         <span className="font-medium text-gray-700 whitespace-nowrap">
           {t('filtrerParType', 'Filtrer par type')}
         </span>
+        {/* Badge indiquant le nombre de filtres actifs */}
         {activeFilters.length > 0 && (
           <span className="bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
             {activeFilters.length}
@@ -118,17 +138,17 @@ const ProductFilter = ({ produits, onFilterChange, selectedTypes = [] }) => {
         <ChevronDown className={`w-4 h-4 text-gray-600 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
-      {/* Panel des filtres - Position absolue pour ne pas décaler la barre */}
+      {/* Panel déroulant des filtres */}
       {isOpen && (
         <>
-          {/* Overlay pour fermer en cliquant à l'extérieur */}
+          {/* Overlay semi-transparent pour fermer en cliquant à l’extérieur */}
           <div 
             className="fixed inset-0 z-40" 
             onClick={() => setIsOpen(false)}
           ></div>
           
-          {/* Panel des filtres */}
           <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl p-6 z-50 w-96 max-w-[90vw] animate-fadeIn">
+            {/* En-tête du panel */}
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-gray-800 text-lg">
                 {t('categoriesProduits', 'Catégories de produits')}
@@ -141,6 +161,7 @@ const ProductFilter = ({ produits, onFilterChange, selectedTypes = [] }) => {
               </button>
             </div>
 
+            {/* Boutons tout sélectionner / désélectionner */}
             <div className="flex gap-3 mb-4">
               <button
                 onClick={selectAllTypes}
@@ -156,6 +177,7 @@ const ProductFilter = ({ produits, onFilterChange, selectedTypes = [] }) => {
               </button>
             </div>
 
+            {/* Liste des types de produits */}
             <div className="grid grid-cols-2 gap-3">
               {productTypes.map(({ type, count, label }) => (
                 <button
@@ -184,6 +206,7 @@ const ProductFilter = ({ produits, onFilterChange, selectedTypes = [] }) => {
               ))}
             </div>
 
+            {/* Message si aucun produit */}
             {productTypes.length === 0 && (
               <div className="text-center py-8 text-gray-500">
                 <Filter className="w-8 h-8 mx-auto mb-2 opacity-50" />
@@ -191,7 +214,7 @@ const ProductFilter = ({ produits, onFilterChange, selectedTypes = [] }) => {
               </div>
             )}
 
-            {/* Actions en bas */}
+            {/* Résumé des filtres actifs + bouton de reset */}
             {activeFilters.length > 0 && (
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <div className="flex flex-wrap gap-2 mb-3">
@@ -229,6 +252,7 @@ const ProductFilter = ({ produits, onFilterChange, selectedTypes = [] }) => {
         </>
       )}
 
+      {/* Animation fadeIn */}
       <style jsx>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(-10px); }

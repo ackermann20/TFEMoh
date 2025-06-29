@@ -6,6 +6,7 @@ import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 
 const RegisterClient = () => {
+  // États pour les champs du formulaire
   const [prenom, setPrenom] = useState('');
   const [nom, setNom] = useState('');
   const [email, setEmail] = useState('');
@@ -14,11 +15,15 @@ const RegisterClient = () => {
   const [erreur, setErreur] = useState('');
   const [validations, setValidations] = useState({});
   const [telephone, setTelephone] = useState('');
+
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
+  /**
+   * Vérifie la force du mot de passe
+   */
   const validatePassword = (password) => {
     return {
       longueur: password.length >= 8,
@@ -29,14 +34,22 @@ const RegisterClient = () => {
     };
   };
 
-const isEmailValid = (email) => /^[\w.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+  /**
+   * Vérifie si un email a un format valide
+   */
+  const isEmailValid = (email) => /^[\w.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
 
+  /**
+   * Soumission du formulaire d'inscription
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErreur('');
+
     const validation = validatePassword(motDePasse);
     setValidations(validation);
 
+    // Vérifications côté client
     if (!isEmailValid(email)) {
       setErreur(t('emailInvalide'));
       return;
@@ -44,7 +57,6 @@ const isEmailValid = (email) => /^[\w.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(em
 
     if (motDePasse !== confirmation) {
       setErreur(t('motDePasseNonCorrespondant'));
-
       return;
     }
 
@@ -52,15 +64,15 @@ const isEmailValid = (email) => /^[\w.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(em
       setErreur(t('motDePasseTropFaible'));
       return;
     }
+
     if (telephone.length < 9) {
       setErreur(t('telephoneInvalide'));
       return;
     }
 
-
     try {
       const res = await axios.post(`${API_BASE_URL}/api/utilisateurs`, {
-        prenom, nom, email, motDePasse,telephone
+        prenom, nom, email, motDePasse, telephone
       });
 
       if (res.data.token && res.data.user) {
@@ -76,25 +88,48 @@ const isEmailValid = (email) => /^[\w.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(em
     }
   };
 
+  // Pour afficher les indicateurs de validation du mot de passe en temps réel
   const validation = validatePassword(motDePasse);
 
   return (
     <div className="min-h-screen bg-amber-50 flex items-center justify-center px-4">
       <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
-        <h2 className="text-2xl font-bold text-amber-800 mb-6 text-center">{t('creerCompte')}</h2>
+        <h2 className="text-2xl font-bold text-amber-800 mb-6 text-center">
+          {t('creerCompte')}
+        </h2>
+
         {erreur && <div className="text-red-600 mb-4">{erreur}</div>}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-gray-700">{t('prenom')}</label>
-            <input type="text" value={prenom} onChange={(e) => setPrenom(e.target.value)} required className="w-full px-4 py-2 border rounded-md" />
+            <input
+              type="text"
+              value={prenom}
+              onChange={(e) => setPrenom(e.target.value)}
+              required
+              className="w-full px-4 py-2 border rounded-md"
+            />
           </div>
           <div>
             <label className="block text-gray-700">{t('nom')}</label>
-            <input type="text" value={nom} onChange={(e) => setNom(e.target.value)} required className="w-full px-4 py-2 border rounded-md" />
+            <input
+              type="text"
+              value={nom}
+              onChange={(e) => setNom(e.target.value)}
+              required
+              className="w-full px-4 py-2 border rounded-md"
+            />
           </div>
           <div>
             <label className="block text-gray-700">{t('email')}</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full px-4 py-2 border rounded-md" />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-4 py-2 border rounded-md"
+            />
           </div>
           <div>
             <label className="block text-gray-700">{t('telephone')}</label>
@@ -114,27 +149,59 @@ const isEmailValid = (email) => /^[\w.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(em
 
           <div>
             <label className="block text-gray-700">{t('motDePasse')}</label>
-            <input type="password" value={motDePasse} onChange={(e) => setMotDePasse(e.target.value)} required className="w-full px-4 py-2 border rounded-md" />
+            <input
+              type="password"
+              value={motDePasse}
+              onChange={(e) => setMotDePasse(e.target.value)}
+              required
+              className="w-full px-4 py-2 border rounded-md"
+            />
             <ul className="text-sm mt-1 ml-2 text-gray-600 list-disc">
-              <li className={validation.longueur ? 'text-green-600' : 'text-red-500'}>{t('motDePasseLongueur')}</li>
-              <li className={validation.majuscule ? 'text-green-600' : 'text-red-500'}>{t('motDePasseMajuscule')}</li>
-              <li className={validation.minuscule ? 'text-green-600' : 'text-red-500'}>{t('motDePasseMinuscule')}</li>
-              <li className={validation.chiffre ? 'text-green-600' : 'text-red-500'}>{t('motDePasseChiffre')}</li>
-              <li className={validation.special ? 'text-green-600' : 'text-red-500'}>{t('motDePasseSpecial')}</li>
-
+              <li className={validation.longueur ? 'text-green-600' : 'text-red-500'}>
+                {t('motDePasseLongueur')}
+              </li>
+              <li className={validation.majuscule ? 'text-green-600' : 'text-red-500'}>
+                {t('motDePasseMajuscule')}
+              </li>
+              <li className={validation.minuscule ? 'text-green-600' : 'text-red-500'}>
+                {t('motDePasseMinuscule')}
+              </li>
+              <li className={validation.chiffre ? 'text-green-600' : 'text-red-500'}>
+                {t('motDePasseChiffre')}
+              </li>
+              <li className={validation.special ? 'text-green-600' : 'text-red-500'}>
+                {t('motDePasseSpecial')}
+              </li>
             </ul>
           </div>
+
           <div>
             <label className="block text-gray-700">{t('confirmerMotDePasse')}</label>
-            <input type="password" value={confirmation} onChange={(e) => setConfirmation(e.target.value)} required className="w-full px-4 py-2 border rounded-md" />
+            <input
+              type="password"
+              value={confirmation}
+              onChange={(e) => setConfirmation(e.target.value)}
+              required
+              className="w-full px-4 py-2 border rounded-md"
+            />
           </div>
-          <button type="submit" className="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-4 rounded">
+
+          <button
+            type="submit"
+            className="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-4 rounded"
+          >
             {t('sInscrire')}
           </button>
         </form>
+
         <div className="text-center mt-4">
           <span className="text-gray-600">{t('dejaUnCompte')} </span>
-          <button onClick={() => navigate('/login')} className="text-amber-700 font-medium hover:underline">{t('connexion')}</button>
+          <button
+            onClick={() => navigate('/login')}
+            className="text-amber-700 font-medium hover:underline"
+          >
+            {t('connexion')}
+          </button>
         </div>
       </div>
     </div>

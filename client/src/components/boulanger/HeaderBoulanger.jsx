@@ -4,14 +4,21 @@ import { jwtDecode } from 'jwt-decode';
 import { useTranslation } from 'react-i18next';
 
 const HeaderBoulanger = () => {
+  // Hooks pour la navigation et la localisation actuelle dans React Router
   const navigate = useNavigate();
   const location = useLocation();
+
+  // States pour gérer le nom de l'utilisateur connecté, son statut de connexion,
+  // l'ouverture du menu profil et le menu mobile
   const [userName, setUserName] = useState('Boulanger');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Hook pour la traduction
   const { t, i18n } = useTranslation();
 
+  // Vérifie si l'utilisateur est connecté (token présent et valide)
   const checkLoginStatus = () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -23,6 +30,8 @@ const HeaderBoulanger = () => {
     try {
       const decoded = jwtDecode(token);
       const currentTime = Date.now() / 1000;
+
+      // Si le token est expiré, déconnexion forcée
       if (decoded.exp && decoded.exp < currentTime) {
         localStorage.removeItem('token');
         localStorage.removeItem('userData');
@@ -31,6 +40,7 @@ const HeaderBoulanger = () => {
         return;
       }
 
+      // Récupération du prénom de l'utilisateur depuis le localStorage
       const userData = JSON.parse(localStorage.getItem('userData') || '{}');
       setUserName(userData.prenom || 'Boulanger');
       setIsLoggedIn(true);
@@ -42,6 +52,7 @@ const HeaderBoulanger = () => {
     }
   };
 
+  // Déconnexion de l'utilisateur
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
@@ -52,10 +63,12 @@ const HeaderBoulanger = () => {
     window.location.reload();
   };
 
+  // Vérifie si un chemin est celui actuellement actif
   const isActive = (path) => {
     return location.pathname === path;
   };
 
+  // Ferme le menu dropdown si on clique à l’extérieur
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (showProfileDropdown && !event.target.closest('.profile-dropdown')) {
@@ -69,6 +82,7 @@ const HeaderBoulanger = () => {
     };
   }, [showProfileDropdown]);
 
+  // Vérifie le statut de connexion au montage du composant
   useEffect(() => {
     checkLoginStatus();
   }, []);
@@ -76,9 +90,9 @@ const HeaderBoulanger = () => {
   return (
     <header className="bg-gradient-to-r from-amber-50 to-orange-50 shadow-lg border-b border-amber-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top bar avec logo et controls */}
+        {/* Top bar avec logo et contrôles */}
         <div className="flex justify-between items-center py-4">
-          {/* Logo */}
+          {/* Logo cliquable vers l'accueil du boulanger */}
           <div 
             className="flex items-center cursor-pointer hover:scale-105 transition-transform duration-200" 
             onClick={() => navigate('/boulanger')}
@@ -89,9 +103,8 @@ const HeaderBoulanger = () => {
             </h1>
           </div>
 
-          {/* Desktop controls */}
+          {/* Contrôles desktop (sélecteur de langue) */}
           <div className="hidden lg:flex items-center gap-4">
-            {/* Language selector */}
             <select
               onChange={(e) => i18n.changeLanguage(e.target.value)}
               defaultValue={i18n.language}
@@ -103,11 +116,12 @@ const HeaderBoulanger = () => {
             </select>
           </div>
 
-          {/* Mobile menu button */}
+          {/* Bouton menu mobile visible uniquement sur petits écrans */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="lg:hidden p-2 rounded-lg text-amber-800 hover:bg-amber-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
           >
+            {/* Icone burger ou croix selon l’état du menu */}
             <svg 
               className={`w-6 h-6 transition-transform duration-300 ${isMobileMenuOpen ? 'rotate-90' : ''}`} 
               fill="none" 
@@ -123,8 +137,9 @@ const HeaderBoulanger = () => {
           </button>
         </div>
 
-        {/* Navigation */}
+        {/* Menu de navigation desktop */}
         <nav className="hidden lg:flex items-center justify-center gap-2 pb-4">
+          {/* Boutons de navigation vers différentes pages */}
           <button 
             onClick={() => navigate('/boulanger')} 
             className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
@@ -191,7 +206,7 @@ const HeaderBoulanger = () => {
             📥 {t('messagesContact', 'Messages')}
           </button>
 
-
+          {/* Dropdown profil si utilisateur connecté */}
           {isLoggedIn && (
             <div className="relative profile-dropdown ml-4">
               <button
@@ -210,6 +225,7 @@ const HeaderBoulanger = () => {
                 </svg>
               </button>
 
+              {/* Menu dropdown pour se déconnecter */}
               {showProfileDropdown && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl py-2 z-50 border border-gray-200">
                   <button 
@@ -225,11 +241,10 @@ const HeaderBoulanger = () => {
           )}
         </nav>
 
-        {/* Mobile menu */}
+        {/* Menu mobile (affiché sur petits écrans) */}
         <div className={`lg:hidden transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'max-h-[90vh] overflow-y-auto opacity-100' : 'max-h-0 overflow-hidden opacity-0'}`}>
-
           <div className="py-4 space-y-3 border-t border-amber-200">
-            {/* Mobile controls */}
+            {/* Contrôles mobile : sélecteur de langue */}
             <div className="flex flex-col gap-3 pb-3 border-b border-amber-200">
               <select
                 onChange={(e) => i18n.changeLanguage(e.target.value)}
@@ -242,7 +257,7 @@ const HeaderBoulanger = () => {
               </select>
             </div>
 
-            {/* Mobile navigation */}
+            {/* Navigation mobile */}
             <button 
               onClick={() => { navigate('/boulanger'); setIsMobileMenuOpen(false); }} 
               className={`flex items-center w-full text-left px-4 py-3 rounded-lg transition-colors duration-200 ${
@@ -311,7 +326,7 @@ const HeaderBoulanger = () => {
               <span className="font-medium">{t('messagesContact')}</span>
             </button>
 
-
+            {/* Section profil et déconnexion en mobile */}
             {isLoggedIn && (
               <div className="space-y-2 border-t border-amber-200 pt-3">
                 <div className="px-4 py-2 bg-amber-100 rounded-lg">

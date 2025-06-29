@@ -6,15 +6,23 @@ import axios from 'axios';
 
 const ProductCard = ({ produit, showFavori = false }) => {
   const navigate = useNavigate();
+
+  // Récupération du contexte pour ajouter au panier
   const { addToCart } = useContext(CartContext);
+
+  // Gestion d'état :
+  // - hover sur la carte
+  // - loading lors de l'ajout au panier
+  // - favoris actif ou non
+  // - statut connecté ou non
   const [isHovered, setIsHovered] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const { t, i18n } = useTranslation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
+  // URL de l'API (pour développement ou production)
+  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -22,6 +30,9 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
     checkIfFavorited();
   }, [produit.id]);
 
+  /**
+   * Vérifie si le produit est déjà en favoris pour l'utilisateur connecté
+   */
   const checkIfFavorited = async () => {
     const userId = JSON.parse(localStorage.getItem('userData'))?.id;
     if (!userId) {
@@ -40,6 +51,9 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
     }
   };
 
+  /**
+   * Ajoute ou retire le produit des favoris
+   */
   const toggleFavori = async () => {
     const token = localStorage.getItem('token');
     const userId = JSON.parse(localStorage.getItem('userData'))?.id;
@@ -72,17 +86,22 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
     }
   };
 
+  // Génération de l'URL d'image
   const imageUrl = produit.image
-  ? `${API_BASE_URL}/uploads/${produit.image}`
-  : 'https://via.placeholder.com/150';
+    ? `${API_BASE_URL}/uploads/${produit.image}`
+    : 'https://via.placeholder.com/150';
 
-  // Gestion des prix avec promotion
+  /**
+   * Calcule le prix affiché :
+   * - Prix promo s'il existe
+   * - ou prix normal
+   * - ou "à partir de" pour sandwichs
+   */
   const getPrixAffichage = () => {
     if (produit.type === 'sandwich' && produit.prix === 0) {
       return t('aPartirDe', { prix: '3.5' });
     }
     
-    // Si il y a un prix promo
     if (produit.prixPromo && produit.prixPromo > 0) {
       return {
         prixOriginal: `${produit.prix.toFixed(2)} €`,
@@ -99,6 +118,9 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
   const prixInfo = getPrixAffichage();
 
+  /**
+   * Renvoie la couleur du badge en fonction du type de produit
+   */
   const getTypeBadgeColor = (type) => {
     switch (type) {
       case 'pain': return 'bg-amber-100 text-amber-800';
@@ -110,7 +132,9 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
     }
   };
 
-  // Déterminer le style d'image selon le type de produit
+  /**
+   * Détermine le style de conteneur et d'image selon le type de produit
+   */
   const getImageStyle = (type) => {
     if (type === 'boisson') {
       return {
@@ -126,6 +150,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
   const imageStyle = getImageStyle(produit.type);
 
+  // Traduction du nom et description en fonction de la langue
   const langue = i18n.language;
   const nom =
     (langue === 'en' && produit.nom_en) ||
@@ -137,8 +162,11 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
     (langue === 'nl' && produit.description_nl) ||
     produit.description || t('produitParDefaut');
 
+  /**
+   * Fonction pour ajouter le produit au panier
+   */
   const ajouterAuPanier = () => {
-    // Vérifier la disponibilité
+    // Vérifie la disponibilité du produit
     if (!produit.disponible) {
       showNotification(t('produitIndisponible', 'Ce produit n\'est pas disponible actuellement.'), 'error');
       return;
@@ -147,9 +175,10 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
     setIsAddingToCart(true);
 
     if (produit.type === 'sandwich') {
+      // Pour les sandwichs, rediriger vers personnalisation
       navigate(`/customize-sandwich/${produit.id}`);
     } else {
-      // Utiliser le prix promo si disponible
+      // Sinon ajout direct au panier
       const prixFinal = produit.prixPromo && produit.prixPromo > 0 ? produit.prixPromo : produit.prix;
       addToCart({ 
         id: produit.id, 
@@ -163,13 +192,21 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
     }
   };
 
+  /**
+   * Affiche une notification flottante
+   * @param {*} message 
+   * @param {*} type "success" ou "error"
+   */
   const showNotification = (message, type = 'success') => {
     const notification = document.createElement('div');
-    const bgColor = type === 'error' ? 'bg-red-100 border-red-500 text-red-700' : 'bg-green-100 border-green-500 text-green-700';
+    const bgColor = type === 'error' 
+      ? 'bg-red-100 border-red-500 text-red-700' 
+      : 'bg-green-100 border-green-500 text-green-700';
+
     const icon = type === 'error' 
       ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>'
       : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
-    
+
     notification.className = `fixed top-4 right-4 ${bgColor} border-l-4 p-4 rounded shadow-md z-50 transform translate-x-full opacity-0 transition-all duration-300`;
     notification.innerHTML = `
       <div class="flex items-center">
@@ -179,9 +216,13 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
         ${message}
       </div>
     `;
+
     document.body.appendChild(notification);
     setTimeout(() => { notification.classList.remove('translate-x-full', 'opacity-0'); }, 10);
-    setTimeout(() => { notification.classList.add('translate-x-full', 'opacity-0'); setTimeout(() => notification.remove(), 300); }, 3000);
+    setTimeout(() => { 
+      notification.classList.add('translate-x-full', 'opacity-0'); 
+      setTimeout(() => notification.remove(), 300); 
+    }, 3000);
   };
 
   return (
@@ -193,7 +234,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative">
-        {/* Container d'image adaptatif selon le type */}
+        {/* Container image adapté au type */}
         <div className={`${imageStyle.container} ${!produit.disponible ? 'filter grayscale' : ''}`}>
           <img 
             src={imageUrl} 
@@ -202,12 +243,12 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
           />
         </div>
         
-        {/* Badge type */}
+        {/* Badge du type de produit */}
         <div className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium ${getTypeBadgeColor(produit.type)}`}>
           {produit.type ? produit.type.charAt(0).toUpperCase() + produit.type.slice(1) : t('produit')}
         </div>
 
-        {/* Badge promotion */}
+        {/* Badge promo */}
         {prixInfo.hasPromo && (
           <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-lg text-xs font-bold animate-pulse">
             PROMO
@@ -231,7 +272,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
         </p>
 
         <div className="flex items-center justify-between gap-2">
-          {/* Affichage des prix */}
+          {/* Affichage du prix */}
           <div className="flex flex-col">
             {prixInfo.hasPromo ? (
               <>
@@ -246,6 +287,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
           </div>
 
           <div className="flex gap-1">
+            {/* Bouton ajouter au panier */}
             <button 
               onClick={ajouterAuPanier} 
               disabled={isAddingToCart || !produit.disponible} 
@@ -295,6 +337,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
               )}
             </button>
             
+            {/* Bouton favoris si connecté */}
             {isLoggedIn && (
               <button
                 onClick={toggleFavori}

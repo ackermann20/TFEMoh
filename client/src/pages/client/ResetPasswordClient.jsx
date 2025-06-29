@@ -7,14 +7,18 @@ export default function ResetPasswordClient() {
   const { t } = useTranslation();
   const { token } = useParams();
   const navigate = useNavigate();
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState(null);
-  const [error, setError] = useState(null);
+
+  // États locaux :
+  const [password, setPassword] = useState("");                // Nouveau mot de passe
+  const [confirmPassword, setConfirmPassword] = useState("");  // Confirmation du mot de passe
+  const [message, setMessage] = useState(null);                // Message de succès
+  const [error, setError] = useState(null);                    // Message d'erreur
 
   const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
-  // Fonction de validation du mot de passe
+  /**
+   * Vérifie la force du mot de passe
+   */
   const validatePassword = (password) => {
     const minLength = 8;
     const hasUpperCase = /[A-Z]/.test(password);
@@ -40,6 +44,9 @@ export default function ResetPasswordClient() {
     return null;
   };
 
+  /**
+   * Soumission du formulaire
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -52,15 +59,14 @@ export default function ResetPasswordClient() {
       return;
     }
 
-    // Vérification de la correspondance des mots de passe
     if (password !== confirmPassword) {
       setError(t("changePassword.error.mismatch"));
       return;
     }
 
     try {
-      const res = await axios.post(`${API_BASE_URL}/api/auth/reset-password/${token}`, { 
-        password 
+      const res = await axios.post(`${API_BASE_URL}/api/auth/reset-password/${token}`, {
+        password
       });
       setMessage(res.data.message);
       setTimeout(() => navigate("/login"), 3000);
@@ -69,6 +75,9 @@ export default function ResetPasswordClient() {
     }
   };
 
+  /**
+   * Annule le processus de réinitialisation
+   */
   const handleCancel = () => {
     setPassword('');
     setConfirmPassword('');
@@ -83,19 +92,19 @@ export default function ResetPasswordClient() {
         <h1 className="text-2xl font-bold text-center text-orange-800 mb-4">
           {t("reinitialiserMotDePasse")}
         </h1>
-        
+
         {error && (
           <div className="bg-red-100 text-red-800 p-2 rounded mb-4">
             {error}
           </div>
         )}
-        
+
         {message && (
           <div className="bg-green-100 text-green-800 p-2 rounded mb-4">
             {message}
           </div>
         )}
-        
+
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block font-medium text-gray-700 mb-2">
@@ -113,7 +122,7 @@ export default function ResetPasswordClient() {
               {t("changePassword.rules")}
             </p>
           </div>
-          
+
           <div className="mb-6">
             <label className="block font-medium text-gray-700 mb-2">
               {t("changePassword.confirm")}
@@ -127,16 +136,16 @@ export default function ResetPasswordClient() {
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
           </div>
-          
+
           <div className="flex justify-between gap-4">
-            <button 
+            <button
               type="button"
               onClick={handleCancel}
               className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
             >
               {t("changePassword.cancel") || "Annuler"}
             </button>
-            <button 
+            <button
               type="submit"
               className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded"
             >
@@ -144,8 +153,8 @@ export default function ResetPasswordClient() {
             </button>
           </div>
         </form>
-        
-        {/* Conseils pour le mot de passe */}
+
+        {/* Bloc de conseils pour choisir un mot de passe sécurisé */}
         <div className="mt-6 bg-orange-100 p-4 rounded text-sm text-orange-900">
           <h4 className="font-semibold">
             {t('changePassword.tips.title') || "Conseils pour un mot de passe sécurisé :"}

@@ -4,34 +4,49 @@ import { useTranslation } from "react-i18next";
 import HeaderBoulanger from '../../components/boulanger/HeaderBoulanger';
 import { Search, Users, Plus, Euro, Calendar, Phone, Mail, User, CreditCard } from 'lucide-react';
 
+/**
+ * Composant principal pour la gestion des clients par le boulanger
+ * Permet de visualiser la liste des clients, leurs informations et d'ajouter du solde
+ */
 const ClientsBoulanger = () => {
+  // Hook de traduction pour l'internationalisation
   const { t } = useTranslation();
-  const [clients, setClients] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showAddSoldeModal, setShowAddSoldeModal] = useState(false);
-  const [selectedClient, setSelectedClient] = useState(null);
-  const [montantAjouter, setMontantAjouter] = useState('');
-  const [raisonAjout, setRaisonAjout] = useState('');
-  const [isAdding, setIsAdding] = useState(false);
+  
+  // États locaux pour la gestion des données et de l'interface
+  const [clients, setClients] = useState([]); // Liste des clients
+  const [loading, setLoading] = useState(true); // État de chargement
+  const [error, setError] = useState(null); // Gestion des erreurs
+  const [searchTerm, setSearchTerm] = useState(''); // Terme de recherche
+  const [showAddSoldeModal, setShowAddSoldeModal] = useState(false); // Affichage du modal d'ajout de solde
+  const [selectedClient, setSelectedClient] = useState(null); // Client sélectionné pour l'ajout de solde
+  const [montantAjouter, setMontantAjouter] = useState(''); // Montant à ajouter au solde
+  const [raisonAjout, setRaisonAjout] = useState(''); // Raison de l'ajout de solde
+  const [isAdding, setIsAdding] = useState(false); // État de traitement de l'ajout
 
-  // Configuration de l'API
+  // Configuration de l'URL de l'API avec fallback sur localhost
   const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
+  // Effet pour charger les clients au montage du composant
   useEffect(() => {
     fetchClients();
   }, []);
 
+  /**
+   * Fonction pour récupérer la liste des clients depuis l'API
+   */
   const fetchClients = async () => {
     try {
       setLoading(true);
+      // Récupération du token d'authentification depuis le localStorage
       const token = localStorage.getItem("token");
+      
+      // Appel API pour récupérer les clients avec authentification
       const res = await axios.get(`${API_BASE_URL}/api/boulanger/clients`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
+      
       setClients(res.data);
       setError(null);
     } catch (error) {
@@ -42,7 +57,11 @@ const ClientsBoulanger = () => {
     }
   };
 
+  /**
+   * Fonction pour ajouter du solde à un client
+   */
   const handleAddSolde = async () => {
+    // Validation du montant saisi
     if (!montantAjouter || parseFloat(montantAjouter) <= 0) {
       showNotification(t('clients.errors.invalidAmount', 'Veuillez saisir un montant valide.'), 'error');
       return;
@@ -52,6 +71,7 @@ const ClientsBoulanger = () => {
       setIsAdding(true);
       const token = localStorage.getItem("token");
       
+      // Appel API pour ajouter du solde au client sélectionné
       await axios.put(`${API_BASE_URL}/api/boulanger/clients/${selectedClient.id}/add-solde`, {
         montant: parseFloat(montantAjouter),
         raison: raisonAjout
@@ -61,7 +81,7 @@ const ClientsBoulanger = () => {
         }
       });
 
-      // Mettre à jour le client dans la liste
+      // Mise à jour locale du solde du client dans la liste
       setClients(prevClients => 
         prevClients.map(client => 
           client.id === selectedClient.id 
@@ -70,6 +90,7 @@ const ClientsBoulanger = () => {
         )
       );
 
+      // Affichage de la notification de succès
       showNotification(
         t('clients.notifications.soldeAdded', 'Solde de {{amount}}€ ajouté avec succès à {{name}}', {
           amount: montantAjouter,
@@ -77,7 +98,7 @@ const ClientsBoulanger = () => {
         })
       );
 
-      // Fermer le modal et réinitialiser
+      // Fermeture du modal et réinitialisation des champs
       setShowAddSoldeModal(false);
       setSelectedClient(null);
       setMontantAjouter('');
@@ -90,11 +111,18 @@ const ClientsBoulanger = () => {
     }
   };
 
+  /**
+   * Ouvre le modal d'ajout de solde pour un client donné
+   * @param {Object} client - Le client pour lequel ajouter du solde
+   */
   const openAddSoldeModal = (client) => {
     setSelectedClient(client);
     setShowAddSoldeModal(true);
   };
 
+  /**
+   * Ferme le modal d'ajout de solde et réinitialise les champs
+   */
   const closeAddSoldeModal = () => {
     setShowAddSoldeModal(false);
     setSelectedClient(null);
@@ -102,14 +130,20 @@ const ClientsBoulanger = () => {
     setRaisonAjout('');
   };
 
+  /**
+   * Affiche une notification temporaire à l'utilisateur
+   * @param {string} message - Le message à afficher
+   * @param {string} type - Le type de notification ('success' ou 'error')
+   */
   const showNotification = (message, type = 'success') => {
-    // Système de notification simple
+    // Création dynamique d'un élément de notification
     const notification = document.createElement('div');
     const bgColor = type === 'error' ? 'bg-red-100 border-red-500 text-red-700' : 'bg-green-100 border-green-500 text-green-700';
     const icon = type === 'error' 
       ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>'
       : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
 
+    // Configuration du style et du contenu de la notification
     notification.className = `fixed top-4 right-4 ${bgColor} border-l-4 p-4 rounded shadow-md z-50 transform translate-x-full opacity-0 transition-all duration-300`;
     notification.innerHTML = `
       <div class="flex items-center">
@@ -119,6 +153,8 @@ const ClientsBoulanger = () => {
         ${message}
       </div>
     `;
+    
+    // Ajout et animation de la notification
     document.body.appendChild(notification);
     setTimeout(() => { notification.classList.remove('translate-x-full', 'opacity-0'); }, 10);
     setTimeout(() => { 
@@ -127,6 +163,10 @@ const ClientsBoulanger = () => {
     }, 4000);
   };
 
+  /**
+   * Filtre la liste des clients selon le terme de recherche
+   * Recherche dans le nom, prénom, email et téléphone
+   */
   const filteredClients = clients.filter(client => {
     const searchLower = searchTerm.toLowerCase();
     return (
@@ -137,6 +177,11 @@ const ClientsBoulanger = () => {
     );
   });
 
+  /**
+   * Formate une date au format français
+   * @param {string} dateString - La date à formater
+   * @returns {string} La date formatée
+   */
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       year: 'numeric',
@@ -145,6 +190,10 @@ const ClientsBoulanger = () => {
     });
   };
 
+  /**
+   * Calcule les statistiques des clients
+   * @returns {Object} Objet contenant les statistiques
+   */
   const getStatsClients = () => {
     return {
       total: clients.length,
@@ -153,11 +202,17 @@ const ClientsBoulanger = () => {
     };
   };
 
+  // Calcul des statistiques pour l'affichage
   const stats = getStatsClients();
 
-  // Composant pour les cartes mobiles
+  /**
+   * Composant pour l'affichage mobile des clients sous forme de cartes
+   * @param {Object} props - Les props du composant
+   * @param {Object} props.client - Les données du client à afficher
+   */
   const ClientCard = ({ client }) => (
     <div className="bg-white rounded-lg shadow-md p-4 mb-4 border-l-4 border-amber-500">
+      {/* En-tête de la carte avec nom et solde */}
       <div className="flex justify-between items-start mb-3">
         <div className="flex items-center">
           <div className="bg-amber-100 rounded-full p-2 mr-3">
@@ -177,6 +232,7 @@ const ClientsBoulanger = () => {
         </div>
       </div>
       
+      {/* Informations de contact */}
       <div className="space-y-2 mb-4">
         <div className="flex items-center text-sm text-gray-600">
           <Mail className="w-4 h-4 mr-2 text-gray-400" />
@@ -194,6 +250,7 @@ const ClientsBoulanger = () => {
         </div>
       </div>
       
+      {/* Bouton d'ajout de solde */}
       <button
         onClick={() => openAddSoldeModal(client)}
         className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-4 py-2 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2"
@@ -206,12 +263,14 @@ const ClientsBoulanger = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100">
+      {/* En-tête de la page */}
       <HeaderBoulanger />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* En-tête avec titre et statistiques */}
+        {/* Section en-tête avec titre et statistiques */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6">
+            {/* Titre et sous-titre */}
             <div>
               <h1 className="text-2xl lg:text-3xl font-bold text-amber-800 mb-2">
                 {t('clients.title', 'Gestion des Clients')}
@@ -223,14 +282,17 @@ const ClientsBoulanger = () => {
             
             {/* Statistiques rapides */}
             <div className="mt-4 lg:mt-0 grid grid-cols-3 lg:grid-cols-3 gap-2 lg:gap-4 w-full lg:w-auto">
+              {/* Nombre total de clients */}
               <div className="bg-amber-50 p-2 lg:p-3 rounded-lg text-center">
                 <div className="text-lg lg:text-2xl font-bold text-amber-600">{stats.total}</div>
                 <div className="text-xs text-gray-600">{t('clients.stats.totalClients', 'Total clients')}</div>
               </div>
+              {/* Clients avec solde positif */}
               <div className="bg-green-50 p-2 lg:p-3 rounded-lg text-center">
                 <div className="text-lg lg:text-2xl font-bold text-green-600">{stats.clientsAvecSolde}</div>
                 <div className="text-xs text-gray-600">{t('clients.stats.withBalance', 'Avec solde')}</div>
               </div>
+              {/* Solde total de tous les clients */}
               <div className="bg-blue-50 p-2 lg:p-3 rounded-lg text-center">
                 <div className="text-lg lg:text-2xl font-bold text-blue-600">{stats.soldeTotal.toFixed(2)}€</div>
                 <div className="text-xs text-gray-600">{t('clients.stats.totalBalance', 'Solde total')}</div>
@@ -252,6 +314,7 @@ const ClientsBoulanger = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
               />
+              {/* Bouton pour effacer la recherche */}
               {searchTerm && (
                 <button 
                   onClick={() => setSearchTerm('')}
@@ -264,8 +327,9 @@ const ClientsBoulanger = () => {
           </div>
         </div>
 
-        {/* Contenu principal */}
+        {/* Contenu principal - Gestion des différents états */}
         {loading ? (
+          // État de chargement
           <div className="flex justify-center items-center py-20">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
@@ -273,6 +337,7 @@ const ClientsBoulanger = () => {
             </div>
           </div>
         ) : error ? (
+          // État d'erreur
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
             <p className="text-red-600">{error}</p>
             <button
@@ -283,6 +348,7 @@ const ClientsBoulanger = () => {
             </button>
           </div>
         ) : filteredClients.length === 0 ? (
+          // Aucun client trouvé
           <div className="bg-white rounded-lg shadow-lg p-12 text-center">
             <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-800 mb-2">
@@ -294,17 +360,18 @@ const ClientsBoulanger = () => {
           </div>
         ) : (
           <>
-            {/* Vue mobile (cartes) */}
+            {/* Affichage mobile - Cartes */}
             <div className="block lg:hidden">
               {filteredClients.map((client) => (
                 <ClientCard key={client.id} client={client} />
               ))}
             </div>
 
-            {/* Vue desktop (tableau) */}
+            {/* Affichage desktop - Tableau */}
             <div className="hidden lg:block bg-white rounded-2xl shadow-lg overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
+                  {/* En-tête du tableau */}
                   <thead className="bg-amber-50 border-b border-amber-200">
                     <tr>
                       <th className="px-6 py-4 text-left text-xs font-medium text-amber-800 uppercase tracking-wider">
@@ -324,9 +391,11 @@ const ClientsBoulanger = () => {
                       </th>
                     </tr>
                   </thead>
+                  {/* Corps du tableau */}
                   <tbody className="divide-y divide-gray-200">
                     {filteredClients.map((client) => (
                       <tr key={client.id} className="hover:bg-gray-50 transition-colors duration-200">
+                        {/* Colonne client (nom, prénom, ID) */}
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="bg-amber-100 rounded-full p-2 mr-3">
@@ -340,6 +409,7 @@ const ClientsBoulanger = () => {
                             </div>
                           </div>
                         </td>
+                        {/* Colonne contact (email, téléphone) */}
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="space-y-1">
                             <div className="flex items-center text-sm text-gray-900">
@@ -354,6 +424,7 @@ const ClientsBoulanger = () => {
                             )}
                           </div>
                         </td>
+                        {/* Colonne solde */}
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${
                             client.solde > 0 
@@ -363,12 +434,14 @@ const ClientsBoulanger = () => {
                             {client.solde.toFixed(2)} €
                           </div>
                         </td>
+                        {/* Colonne date d'inscription */}
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center text-sm text-gray-500">
                             <Calendar className="w-4 h-4 mr-2 text-gray-400" />
                             {formatDate(client.createdAt)}
                           </div>
                         </td>
+                        {/* Colonne actions */}
                         <td className="px-6 py-4 whitespace-nowrap">
                           <button
                             onClick={() => openAddSoldeModal(client)}
@@ -391,6 +464,7 @@ const ClientsBoulanger = () => {
         {showAddSoldeModal && selectedClient && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 max-h-screen overflow-y-auto">
+              {/* En-tête du modal */}
               <div className="flex items-center mb-6">
                 <div className="bg-amber-100 rounded-full p-3 mr-4">
                   <CreditCard className="w-6 h-6 text-amber-600" />
@@ -405,7 +479,9 @@ const ClientsBoulanger = () => {
                 </div>
               </div>
 
+              {/* Formulaire d'ajout de solde */}
               <div className="space-y-4">
+                {/* Affichage du solde actuel */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('clients.currentBalance', 'Solde actuel')}
@@ -417,6 +493,7 @@ const ClientsBoulanger = () => {
                   </div>
                 </div>
 
+                {/* Champ de saisie du montant */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('clients.amountToAdd', 'Montant à ajouter')} (€)
@@ -432,6 +509,7 @@ const ClientsBoulanger = () => {
                   />
                 </div>
 
+                {/* Champ de saisie de la raison (optionnel) */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('clients.reason', 'Raison')} ({t('clients.optional', 'optionnel')})
@@ -445,6 +523,7 @@ const ClientsBoulanger = () => {
                   />
                 </div>
 
+                {/* Aperçu du nouveau solde */}
                 {montantAjouter && (
                   <div className="bg-amber-50 rounded-lg p-3">
                     <p className="text-sm text-amber-800">
@@ -454,24 +533,29 @@ const ClientsBoulanger = () => {
                 )}
               </div>
 
+              {/* Boutons d'action du modal */}
               <div className="flex flex-col sm:flex-row gap-3 mt-6">
+                {/* Bouton d'annulation */}
                 <button
                   onClick={closeAddSoldeModal}
                   className="flex-1 px-4 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
                 >
                   {t('clients.cancel', 'Annuler')}
                 </button>
+                {/* Bouton de confirmation */}
                 <button
                   onClick={handleAddSolde}
                   disabled={isAdding || !montantAjouter || parseFloat(montantAjouter) <= 0}
                   className="flex-1 px-4 py-3 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isAdding ? (
+                    // État de chargement lors de l'ajout
                     <div className="flex items-center justify-center">
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
                       {t('clients.adding', 'Ajout...')}
                     </div>
                   ) : (
+                    // État normal
                     <div className="flex items-center justify-center">
                       <Euro className="w-4 h-4 mr-2" />
                       {t('clients.confirm', 'Confirmer')}

@@ -5,47 +5,65 @@ import HeaderClient from '../../components/client/HeaderClient';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, Trash2, X, Check } from 'lucide-react';
 
+/**
+ * Composant de profil utilisateur avec gestion des données personnelles
+ * Interface complète pour modifier le profil, gérer les actions utilisateur
+ * et supprimer le compte avec un processus de confirmation multi-étapes
+ */
 const ProfileClient = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Hook pour la navigation programmatique
+  
+  // États pour la gestion des données utilisateur
   const [userData, setUserData] = useState({
-    prenom: '',
-    nom: '',
-    email: '',
-    telephone: ''
+    prenom: '',     // Prénom (lecture seule)
+    nom: '',        // Nom (lecture seule)
+    email: '',      // Email (lecture seule)
+    telephone: ''   // Numéro de téléphone (modifiable)
   });
-  const [isEditing, setIsEditing] = useState(false);
-  const [message, setMessage] = useState({ text: '', type: '' });
-  const [isLoading, setIsLoading] = useState(true);
+  
+  // États pour la gestion de l'interface
+  const [isEditing, setIsEditing] = useState(false); // Mode édition du téléphone
+  const [message, setMessage] = useState({ text: '', type: '' }); // Messages de feedback utilisateur
+  const [isLoading, setIsLoading] = useState(true); // État de chargement initial
+  
+  // État complexe pour la gestion du processus de suppression de compte
   const [deleteModal, setDeleteModal] = useState({
-    step: 0, // 0: fermé, 1: première confirmation, 2: deuxième confirmation, 3: confirmation finale
-    password: '',
-    confirmText: '',
-    isDeleting: false
+    step: 0,            // 0: fermé, 1: première confirmation, 2: deuxième confirmation, 3: confirmation finale
+    password: '',       // Mot de passe pour confirmation finale
+    confirmText: '',    // Texte de confirmation à saisir
+    isDeleting: false   // État de suppression en cours
   });
-  const { t } = useTranslation();
+  
+  const { t } = useTranslation(); // Hook pour l'internationalisation
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
+  // Configuration de l'URL de base de l'API
+  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
-
-  // Vérifier si l'utilisateur est connecté
+  /**
+   * useEffect pour vérifier l'authentification et charger les données utilisateur
+   * Récupère les données depuis le localStorage et vérifie la validité du token
+   */
   useEffect(() => {
     const token = localStorage.getItem('token');
+    
+    // Redirection si utilisateur non authentifié
     if (!token) {
       navigate('/login');
       return;
     }
 
-    // Récupérer les données directement depuis localStorage
+    // Chargement des données utilisateur depuis le localStorage
     setIsLoading(true);
     try {
       let storedUserData = {};
       try {
+        // Tentative de lecture des données utilisateur sérialisées
         storedUserData = JSON.parse(localStorage.getItem('userData') || '{}');
       } catch (e) {
         console.error("Erreur lors de la lecture de userData:", e);
       }
       
-      // Utiliser les données disponibles
+      // Fusion des données depuis différentes sources du localStorage (compatibilité)
       setUserData({
         prenom: storedUserData.prenom || localStorage.getItem('userPrenom') || '',
         nom: storedUserData.nom || '',
@@ -59,23 +77,31 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
     } finally {
       setIsLoading(false);
     }
-  }, [navigate]);
+  }, [navigate]); // Dépendance sur navigate pour relancer si changement
 
-  // Gérer uniquement les changements du numéro de téléphone
+  /**
+   * Gestionnaire de changement pour le champ téléphone
+   * Seul champ modifiable dans le profil
+   * @param {Event} e - Événement de changement du champ
+   */
   const handleChange = (e) => {
     setUserData(prev => ({
       ...prev,
-      telephone: e.target.value
+      telephone: e.target.value // Mise à jour uniquement du téléphone
     }));
   };
 
-  // Dans la fonction handleSubmit du composant ProfileClient
+  /**
+   * Fonction de soumission du formulaire pour mettre à jour le téléphone
+   * Effectue un appel API pour sauvegarder et met à jour le localStorage
+   * @param {Event} e - Événement de soumission du formulaire
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage({ text: '', type: '' });
+    setMessage({ text: '', type: '' }); // Effacement des messages précédents
   
     try {
-      // Récupérer les données actuelles de localStorage
+      // Récupération des données utilisateur actuelles
       let storedUserData = {};
       try {
         storedUserData = JSON.parse(localStorage.getItem('userData') || '{}');
@@ -85,32 +111,33 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
         return;
       }
       
+      // Vérification de la présence de l'ID utilisateur
       if (!storedUserData.id) {
         setMessage({ text: t('profile.userIdMissing'), type: 'error' });
         return;
       }
   
-      // Mettre à jour le téléphone dans la base de données
+      // Vérification du token d'authentification
       const token = localStorage.getItem('token');
       if (!token) {
         setMessage({ text: t('profile.mustBeLoggedIn'), type: 'error' });
         return;
       }
   
-      // Faire l'appel à l'API pour mettre à jour le numéro de téléphone
+      // Appel API pour mettre à jour le numéro de téléphone
       await axios.put(`${API_BASE_URL}/api/utilisateurs/${storedUserData.id}`, 
-        { telephone: userData.telephone },
-        { headers: { Authorization: `Bearer ${token}` }}
+        { telephone: userData.telephone }, // Envoi uniquement du téléphone
+        { headers: { Authorization: `Bearer ${token}` }} // Authentification JWT
       );
       
-      // Mettre à jour les données dans localStorage
+      // Mise à jour du localStorage avec les nouvelles données
       const updatedUserData = {
         ...storedUserData,
         telephone: userData.telephone
       };
-      
       localStorage.setItem('userData', JSON.stringify(updatedUserData));
       
+      // Feedback utilisateur et sortie du mode édition
       setMessage({ text: t('profile.phoneUpdated'), type: 'success' });
       setIsEditing(false);
     } catch (error) {
@@ -119,11 +146,14 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
     }
   };
 
-  // Annuler les modifications
+  /**
+   * Fonction d'annulation des modifications
+   * Restaure la valeur originale du téléphone depuis le localStorage
+   */
   const handleCancel = () => {
     setIsEditing(false);
     
-    // Recharger les données depuis localStorage
+    // Rechargement des données depuis localStorage pour annuler les changements
     let storedUserData = {};
     try {
       storedUserData = JSON.parse(localStorage.getItem('userData') || '{}');
@@ -131,41 +161,46 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
       console.error("Erreur lors de la lecture de userData:", e);
     }
     
+    // Restauration de la valeur originale du téléphone
     setUserData(prev => ({
       ...prev,
       telephone: storedUserData.telephone || ''
     }));
   };
 
-  // Gérer la suppression du compte
+  /**
+   * Fonction principale de suppression du compte utilisateur
+   * Effectue l'appel API de suppression et nettoie le localStorage
+   */
   const handleDeleteAccount = async () => {
-    setDeleteModal(prev => ({ ...prev, isDeleting: true }));
+    setDeleteModal(prev => ({ ...prev, isDeleting: true })); // Activation de l'état de suppression
     
     try {
       const storedUserData = JSON.parse(localStorage.getItem('userData') || '{}');
       const token = localStorage.getItem('token');
       
+      // Vérification des prérequis pour la suppression
       if (!token || !storedUserData.id) {
         setMessage({ text: 'Erreur d\'authentification', type: 'error' });
         return;
       }
 
-      // Appel API pour supprimer le compte
+      // Appel API pour supprimer le compte avec mot de passe
       await axios.delete(`${API_BASE_URL}/api/utilisateurs/delete-account`, {
         headers: { Authorization: `Bearer ${token}` },
         data: { 
-          password: deleteModal.password,
-          userId: storedUserData.id 
+          password: deleteModal.password,    // Mot de passe pour confirmation
+          userId: storedUserData.id          // ID utilisateur pour sécurité
         }
       });
 
-      // Nettoyer le localStorage
+      // Nettoyage complet du localStorage après suppression réussie
       localStorage.removeItem('token');
       localStorage.removeItem('userData');
       localStorage.removeItem('userPrenom');
       localStorage.removeItem('email');
 
-      // Rediriger vers la page d'accueil avec un message
+      // Redirection vers l'accueil avec message de confirmation
       navigate('/', { 
         state: { 
           message: 'Votre compte a été supprimé avec succès. Nous sommes désolés de vous voir partir.' 
@@ -178,11 +213,14 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
         text: error.response?.data?.message || 'Erreur lors de la suppression du compte', 
         type: 'error' 
       });
-      setDeleteModal(prev => ({ ...prev, isDeleting: false }));
+      setDeleteModal(prev => ({ ...prev, isDeleting: false })); // Désactivation de l'état de suppression
     }
   };
 
-  // Réinitialiser le modal de suppression
+  /**
+   * Fonction de réinitialisation du modal de suppression
+   * Remet tous les états du modal à leur valeur initiale
+   */
   const resetDeleteModal = () => {
     setDeleteModal({
       step: 0,
@@ -192,34 +230,47 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
     });
   };
 
-  // Passer à l'étape suivante de suppression
+  /**
+   * Fonction pour passer à l'étape suivante du processus de suppression
+   * Incrémente le compteur d'étapes jusqu'à un maximum de 3
+   */
   const nextDeleteStep = () => {
     if (deleteModal.step < 3) {
       setDeleteModal(prev => ({ ...prev, step: prev.step + 1 }));
     }
   };
 
-  // Valider l'étape actuelle
+  /**
+   * Fonction de validation pour autoriser le passage à l'étape suivante
+   * Vérifie les conditions spécifiques à chaque étape du processus
+   * @returns {boolean} True si l'utilisateur peut procéder à l'étape suivante
+   */
   const canProceedToNext = () => {
     switch (deleteModal.step) {
       case 1:
-        return true; // Première confirmation, juste cliquer
+        return true; // Première confirmation, juste cliquer sur "continuer"
       case 2:
+        // Deuxième étape : vérification du texte de confirmation exact
         return deleteModal.confirmText.toLowerCase() === 'supprimer mon compte';
       case 3:
-        return deleteModal.password.length >= 6; // Validation basique du mot de passe
+        // Troisième étape : validation basique du mot de passe (longueur minimale)
+        return deleteModal.password.length >= 6;
       default:
         return false;
     }
   };
 
-  // Récupérer le solde depuis localStorage
+  /**
+   * Fonction utilitaire pour récupérer le solde utilisateur
+   * Lit le solde depuis le localStorage avec gestion d'erreur
+   * @returns {number} Solde de l'utilisateur ou 0 en cas d'erreur
+   */
   const getUserSolde = () => {
     try {
       const storedUserData = JSON.parse(localStorage.getItem('userData') || '{}');
       return storedUserData.solde || 0;
     } catch (e) {
-      return 0;
+      return 0; // Valeur par défaut en cas d'erreur
     }
   };
 
@@ -230,91 +281,120 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
       <div className="max-w-4xl mx-auto p-6">
         <h1 className="text-3xl font-bold text-amber-800 mb-6 text-center">{t('profile.title')}</h1>
         
+        {/* Affichage conditionnel : spinner de chargement ou contenu */}
         {isLoading ? (
           <div className="flex justify-center my-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-700"></div>
           </div>
         ) : (
+          /* Carte principale du profil utilisateur */
           <div className="bg-white rounded-lg shadow-md p-6">
+            
+            {/* Affichage conditionnel des messages de feedback */}
             {message.text && (
-              <div className={`p-4 mb-6 rounded-lg ${message.type === 'success' ? 'bg-green-100 text-green-700' : message.type === 'warning' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+              <div className={`p-4 mb-6 rounded-lg ${
+                message.type === 'success' ? 'bg-green-100 text-green-700' : 
+                message.type === 'warning' ? 'bg-yellow-100 text-yellow-700' : 
+                'bg-red-100 text-red-700'
+              }`}>
                 {message.text}
               </div>
             )}
             
+            {/* Formulaire de modification du profil */}
             <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                {/* Champ Prénom (lecture seule) */}
                 <div>
-                  <label htmlFor="prenom" className="block text-gray-700 font-medium mb-2">{t('profile.firstname')}</label>
+                  <label htmlFor="prenom" className="block text-gray-700 font-medium mb-2">
+                    {t('profile.firstname')}
+                  </label>
                   <input
                     type="text"
                     id="prenom"
                     name="prenom"
                     value={userData.prenom || ''}
-                    disabled={true}
+                    disabled={true} // Toujours désactivé (non modifiable)
                     className="w-full p-3 border rounded-lg bg-gray-100 border-gray-200"
                   />
                 </div>
                 
+                {/* Champ Nom (lecture seule) */}
                 <div>
-                  <label htmlFor="nom" className="block text-gray-700 font-medium mb-2">{t('profile.lastname')}</label>
+                  <label htmlFor="nom" className="block text-gray-700 font-medium mb-2">
+                    {t('profile.lastname')}
+                  </label>
                   <input
                     type="text"
                     id="nom"
                     name="nom"
                     value={userData.nom || ''}
-                    disabled={true}
+                    disabled={true} // Toujours désactivé (non modifiable)
                     className="w-full p-3 border rounded-lg bg-gray-100 border-gray-200"
                   />
                 </div>
                 
+                {/* Champ Email (lecture seule) */}
                 <div>
-                  <label htmlFor="email" className="block text-gray-700 font-medium mb-2">{t('profile.email')}</label>
+                  <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
+                    {t('profile.email')}
+                  </label>
                   <input
                     type="email"
                     id="email"
                     name="email"
                     value={userData.email || ''}
-                    disabled={true}
+                    disabled={true} // Toujours désactivé (non modifiable)
                     className="w-full p-3 border rounded-lg bg-gray-100 border-gray-200"
                   />
                 </div>
                 
+                {/* Champ Téléphone (modifiable en mode édition) */}
                 <div>
-                  <label htmlFor="telephone" className="block text-gray-700 font-medium mb-2">{t('profile.phone')}</label>
+                  <label htmlFor="telephone" className="block text-gray-700 font-medium mb-2">
+                    {t('profile.phone')}
+                  </label>
                   <input
                     type="tel"
                     id="telephone"
                     name="telephone"
                     value={userData.telephone || ''}
-                    onChange={handleChange}
-                    disabled={!isEditing}
-                    className={`w-full p-3 border rounded-lg ${isEditing ? 'border-amber-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200' : 'bg-gray-100 border-gray-200'}`}
+                    onChange={handleChange} // Gestionnaire de changement
+                    disabled={!isEditing} // Activé uniquement en mode édition
+                    className={`w-full p-3 border rounded-lg ${
+                      isEditing 
+                        ? 'border-amber-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200' // Style édition
+                        : 'bg-gray-100 border-gray-200' // Style lecture seule
+                    }`}
                   />
                 </div>
               </div>
               
+              {/* Boutons d'action conditionnels selon le mode */}
               <div className="mt-8 flex justify-center">
                 {isEditing ? (
+                  /* Boutons en mode édition : Annuler / Sauvegarder */
                   <div className="flex space-x-4">
                     <button
                       type="button"
-                      onClick={handleCancel}
+                      onClick={handleCancel} // Annulation des modifications
                       className="px-6 py-3 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition duration-300"
                     >
                       {t('profile.cancel')}
                     </button>
                     <button
-                      type="submit"
+                      type="submit" // Soumission du formulaire
                       className="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition duration-300"
                     >
                       {t('profile.save')}
                     </button>
                   </div>
                 ) : (
+                  /* Bouton en mode lecture : Modifier le téléphone */
                   <button
                     type="button"
-                    onClick={() => setIsEditing(true)}
+                    onClick={() => setIsEditing(true)} // Activation du mode édition
                     className="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition duration-300"
                   >
                     {t('profile.editPhone')}
@@ -325,11 +405,14 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
           </div>
         )}
         
+        {/* Section des actions utilisateur (affichée après le chargement) */}
         {!isLoading && (
           <div className="mt-8 bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-bold text-amber-800 mb-4">{t('profile.actions')}</h2>
             
             <div className="space-y-4">
+              
+              {/* Bouton vers la page des commandes */}
               <button
                 onClick={() => navigate('/orders')}
                 className="w-full p-3 bg-white border-2 border-amber-500 text-amber-600 hover:bg-amber-50 rounded-lg transition duration-300 flex items-center justify-center"
@@ -337,6 +420,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
                 <span className="mr-2">📋</span> {t('profile.orders')}
               </button>
               
+              {/* Bouton vers le changement de mot de passe */}
               <button
                 onClick={() => navigate('/change-password')}
                 className="w-full p-3 bg-white border-2 border-amber-500 text-amber-600 hover:bg-amber-50 rounded-lg transition duration-300 flex items-center justify-center"
@@ -344,23 +428,25 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
                 <span className="mr-2">🔒</span> {t('profile.changePassword')}
               </button>
               
+              {/* Bouton de déconnexion avec nettoyage du localStorage */}
               <button
                 onClick={() => {
+                  // Nettoyage complet des données de session
                   localStorage.removeItem('token');
                   localStorage.removeItem('userData');
                   localStorage.removeItem('userPrenom');
                   localStorage.removeItem('email');
                   navigate('/');
-                  window.location.reload();
+                  window.location.reload(); // Rechargement pour réinitialiser l'état
                 }}
                 className="w-full p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition duration-300 flex items-center justify-center"
               >
                 <span className="mr-2">🚪</span> {t('profile.logout')}
               </button>
 
-              {/* Bouton de suppression de compte */}
+              {/* Bouton de suppression de compte (démarrage du processus multi-étapes) */}
               <button
-                onClick={() => setDeleteModal(prev => ({ ...prev, step: 1 }))}
+                onClick={() => setDeleteModal(prev => ({ ...prev, step: 1 }))} // Démarrage à l'étape 1
                 className="w-full p-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-300 flex items-center justify-center"
               >
                 <Trash2 className="mr-2 w-5 h-5" />
@@ -371,20 +457,21 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
         )}
       </div>
 
-      {/* Modal de suppression de compte */}
+      {/* Modal de suppression de compte (processus multi-étapes) */}
       {deleteModal.step > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-md w-full p-6 relative max-h-[90vh] overflow-y-auto">
-            {/* Bouton fermer */}
+            
+            {/* Bouton de fermeture du modal */}
             <button
-              onClick={resetDeleteModal}
+              onClick={resetDeleteModal} // Fermeture et réinitialisation
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-              disabled={deleteModal.isDeleting}
+              disabled={deleteModal.isDeleting} // Désactivé pendant la suppression
             >
               <X className="w-6 h-6" />
             </button>
 
-            {/* Étape 1: Première confirmation */}
+            {/* Étape 1: Première confirmation avec avertissements */}
             {deleteModal.step === 1 && (
               <div>
                 <div className="flex items-center mb-4">
@@ -399,6 +486,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
                     Vous êtes sur le point de supprimer définitivement votre compte.
                   </p>
                   
+                  {/* Zone d'avertissement avec conséquences détaillées */}
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                     <h4 className="font-semibold text-red-800 mb-2">
                       ⚠️ Cette action est irréversible et entraînera :
@@ -419,13 +507,13 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
                 <div className="flex space-x-3">
                   <button
-                    onClick={resetDeleteModal}
+                    onClick={resetDeleteModal} // Annulation complète
                     className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition duration-300"
                   >
                     Annuler
                   </button>
                   <button
-                    onClick={nextDeleteStep}
+                    onClick={nextDeleteStep} // Passage à l'étape suivante
                     className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-300"
                   >
                     Je comprends, continuer
@@ -434,7 +522,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
               </div>
             )}
 
-            {/* Étape 2: Confirmation par texte */}
+            {/* Étape 2: Confirmation par saisie d'un texte spécifique */}
             {deleteModal.step === 2 && (
               <div>
                 <div className="flex items-center mb-4">
@@ -449,12 +537,14 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
                     Pour continuer, veuillez taper exactement le texte suivant :
                   </p>
                   
+                  {/* Affichage du texte à reproduire */}
                   <div className="bg-gray-100 p-3 rounded-lg mb-4">
                     <code className="font-mono text-lg font-semibold">
                       SUPPRIMER MON COMPTE
                     </code>
                   </div>
                   
+                  {/* Champ de saisie pour la confirmation */}
                   <input
                     type="text"
                     value={deleteModal.confirmText}
@@ -466,6 +556,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   />
                   
+                  {/* Message d'erreur si le texte ne correspond pas */}
                   {deleteModal.confirmText && deleteModal.confirmText.toLowerCase() !== 'supprimer mon compte' && (
                     <p className="text-red-600 text-sm mt-2">
                       Le texte ne correspond pas exactement.
@@ -475,14 +566,14 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
                 <div className="flex space-x-3">
                   <button
-                    onClick={() => setDeleteModal(prev => ({ ...prev, step: 1 }))}
+                    onClick={() => setDeleteModal(prev => ({ ...prev, step: 1 }))} // Retour étape précédente
                     className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition duration-300"
                   >
                     Retour
                   </button>
                   <button
-                    onClick={nextDeleteStep}
-                    disabled={!canProceedToNext()}
+                    onClick={nextDeleteStep} // Passage étape suivante
+                    disabled={!canProceedToNext()} // Désactivé si validation échoue
                     className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition duration-300"
                   >
                     Continuer
@@ -491,7 +582,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
               </div>
             )}
 
-            {/* Étape 3: Confirmation par mot de passe */}
+            {/* Étape 3: Confirmation finale par mot de passe */}
             {deleteModal.step === 3 && (
               <div>
                 <div className="flex items-center mb-4">
@@ -506,6 +597,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
                     Entrez votre mot de passe pour confirmer la suppression définitive :
                   </p>
                   
+                  {/* Champ de saisie du mot de passe */}
                   <input
                     type="password"
                     value={deleteModal.password}
@@ -517,6 +609,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   />
                   
+                  {/* Avertissement final très visible */}
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4">
                     <p className="text-red-800 font-semibold text-center">
                       🚨 DERNIÈRE CHANCE 🚨
@@ -529,23 +622,25 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
                 <div className="flex space-x-3">
                   <button
-                    onClick={() => setDeleteModal(prev => ({ ...prev, step: 2 }))}
-                    disabled={deleteModal.isDeleting}
+                    onClick={() => setDeleteModal(prev => ({ ...prev, step: 2 }))} // Retour étape précédente
+                    disabled={deleteModal.isDeleting} // Désactivé pendant suppression
                     className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 disabled:bg-gray-200 text-gray-800 rounded-lg transition duration-300"
                   >
                     Retour
                   </button>
                   <button
-                    onClick={handleDeleteAccount}
-                    disabled={!canProceedToNext() || deleteModal.isDeleting}
+                    onClick={handleDeleteAccount} // Exécution de la suppression
+                    disabled={!canProceedToNext() || deleteModal.isDeleting} // Désactivé si conditions non remplies
                     className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition duration-300 flex items-center justify-center"
                   >
                     {deleteModal.isDeleting ? (
+                      // Affichage pendant la suppression
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
                         Suppression...
                       </>
                     ) : (
+                      // Affichage normal
                       <>
                         <Trash2 className="w-4 h-4 mr-2" />
                         SUPPRIMER DÉFINITIVEMENT
