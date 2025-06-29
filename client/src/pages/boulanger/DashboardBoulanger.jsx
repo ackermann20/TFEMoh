@@ -198,10 +198,34 @@ const DashboardBoulanger = () => {
     }
   };
 
-  const showNotification = (message, type = 'info') => {
-    // Remplacer par un vrai système de notification plus tard
-    alert(message);
+  const showNotification = (message, type = 'success') => {
+    const notification = document.createElement('div');
+    const bgColor = type === 'error' 
+      ? 'bg-red-100 border-red-500 text-red-700' 
+      : 'bg-green-100 border-green-500 text-green-700';
+    const icon = type === 'error'
+      ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>'
+      : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
+
+    notification.className = `fixed top-4 right-4 ${bgColor} border-l-4 p-4 rounded shadow-md z-50 transform translate-x-full opacity-0 transition-all duration-300`;
+    notification.innerHTML = `
+      <div class="flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          ${icon}
+        </svg>
+        ${message}
+      </div>
+    `;
+    document.body.appendChild(notification);
+    setTimeout(() => { 
+      notification.classList.remove('translate-x-full', 'opacity-0'); 
+    }, 10);
+    setTimeout(() => { 
+      notification.classList.add('translate-x-full', 'opacity-0'); 
+      setTimeout(() => notification.remove(), 300);
+    }, 4000);
   };
+
 
   useEffect(() => {
     const fetchCommandes = async () => {

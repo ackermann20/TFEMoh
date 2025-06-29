@@ -11,6 +11,8 @@ function CartClient() {
   // Importer setCartItems du contexte
   const { cartItems, removeFromCart, clearCart, totalPrice, addToCart, setCartItems } = useContext(CartContext);
   const [dateRetrait, setDateRetrait] = useState(null);
+  const [allProducts, setAllProducts] = useState([]);
+  const [allGarnitures, setAllGarnitures] = useState([]);
   const [trancheHoraire, setTrancheHoraire] = useState("matin");
   const [userSolde, setUserSolde] = useState(0);
   const navigate = useNavigate();
@@ -74,8 +76,70 @@ const groupedCartItems = cartItems;
   };
 
   useEffect(() => {
+    const fetchProduits = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const res = await axios.get(`${API_BASE_URL}/api/produits`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setAllProducts(res.data);
+      } catch (err) {
+        console.error("Erreur chargement produits:", err);
+      }
+    };
+
+    fetchProduits();
+  }, []);
+  const fetchGarnitures = async () => {
+  const token = localStorage.getItem('token');
+  try {
+    const res = await axios.get(`${API_BASE_URL}/api/garnitures`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    setAllGarnitures(res.data);
+  } catch (err) {
+    console.error("Erreur chargement garnitures:", err);
+  }
+};
+
+useEffect(() => {
+  fetchGarnitures();
+}, []);
+
+
+
+  const produitsById = {};
+    allProducts.forEach(p => {
+      produitsById[p.id] = p;
+    });
+
+
+  useEffect(() => {
     console.log('🛒 CartClient - cartItems changed:', cartItems);
   }, [cartItems]);
+
+  const getNomPain = (nomPain) => {
+  const pains = {
+    blanc: {
+      fr: 'blanc',
+      en: 'white',
+      nl: 'wit'
+    },
+    complet: {
+      fr: 'complet',
+      en: 'wholemeal',
+      nl: 'volkoren'
+    },
+    demiGris: {
+      fr: 'demi-gris',
+      en: 'half-white',
+      nl: 'half-grijs'
+    }
+  };
+
+  return pains[nomPain]?.[i18n.language] || nomPain;
+};
+
 
   useEffect(() => {
     axios.get(`${API_BASE_URL}/api/horaires`)
@@ -107,6 +171,10 @@ const groupedCartItems = cartItems;
     };
     
     fetchUserSolde();
+
+
+    
+
     
     const fetchSuggestions = async () => {
       const token = localStorage.getItem('token');
@@ -127,6 +195,8 @@ const groupedCartItems = cartItems;
 
     fetchSuggestions();
   }, []);
+
+
 
   const handleValidation = async () => {
     if (!dateRetrait) {
@@ -161,6 +231,60 @@ const groupedCartItems = cartItems;
       }, 5000);
       return;
     }
+     try {
+    const resProduits = await axios.get(`${API_BASE_URL}/api/produits`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const produitsDisponibles = resProduits.data;
+
+    const resGarnitures = await axios.get(`${API_BASE_URL}/api/garnitures`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const garnituresDisponibles = resGarnitures.data;
+
+    let produitsIndisponibles = [];
+    let garnituresIndisponibles = [];
+
+    cartItems.forEach(item => {
+      const produitActuel = produitsDisponibles.find(p => p.id === item.id);
+      if (!produitActuel || produitActuel.disponible === false) {
+        produitsIndisponibles.push(item.nom);
+        return;
+      }
+
+      (item.garnitures || []).forEach(g => {
+        const garnitureActuelle = garnituresDisponibles.find(ga => ga.id === g.id);
+        if (!garnitureActuelle || garnitureActuelle.disponible === false) {
+          garnituresIndisponibles.push(g.nom);
+        }
+      });
+    });
+
+    if (produitsIndisponibles.length > 0 || garnituresIndisponibles.length > 0) {
+      let message = '';
+
+      if (produitsIndisponibles.length > 0) {
+        message += `⚠️ ${t('produitsIndisponibles')}:\n- ${produitsIndisponibles.join('\n- ')}\n\n`;
+      }
+      if (garnituresIndisponibles.length > 0) {
+        message += `⚠️ ${t('garnituresIndisponibles')}:\n- ${garnituresIndisponibles.join('\n- ')}`;
+      }
+
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md z-50';
+      notification.innerHTML = `<div class="flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg><pre>${message}</pre></div>`;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 5000);
+
+      return;
+    }
+
+  } catch (err) {
+    console.error("Erreur vérification disponibilités:", err);
+  }
   
     try {
       const userData = JSON.parse(localStorage.getItem('userData') || '{}');
@@ -269,7 +393,7 @@ const groupedCartItems = cartItems;
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <span className="font-semibold text-amber-800">{item.nom}</span>
+                          <span className="font-semibold text-amber-800">{getNomProduit(produitsById[item.id] || item)}</span>
                           
                           {(item.type === 'sandwich' || item.isSandwich || item.estSandwich || item.categorie === 'sandwich') && (
                             <span className="px-2 py-0.5 bg-amber-200 rounded-full text-xs text-amber-800">
@@ -280,14 +404,20 @@ const groupedCartItems = cartItems;
                         
                         {item.garnitures && item.garnitures.length > 0 && (
                           <p className="text-sm text-gray-600 mb-2">
-                            {t('garnitures')} : {item.garnitures.map(g => g.nom).join(', ')}
+                            {t('garnitures')} : {item.garnitures.map(g => {
+                              const garniture = allGarnitures.find(ga => ga.id === g.id);
+                              if (!garniture) return g.nom;
+                              return garniture[`nom_${i18n.language}`] || garniture.nom;
+                            }).join(', ')}
                           </p>
                         )}
+
                         {item.typePain && (
                           <p className="text-sm text-gray-600 mb-2">
-                            Pain : <span className="capitalize">{item.typePain}</span>
+                            {t('pain').charAt(0).toUpperCase() + t('pain').slice(1)} : <span className="capitalize">{getNomPain(item.typePain)}</span>
                           </p>
                         )}
+
 
 
                         <div className="flex items-center gap-4">

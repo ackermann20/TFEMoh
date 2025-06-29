@@ -103,7 +103,7 @@ const HistoryBoulanger = () => {
 
   const getTotal = (commande) => {
     return commande.ligneCommandes?.reduce((sum, ligne) => {
-      let total = ligne.quantite * (ligne.produit?.prix || 0);
+      let total = ligne.quantite * (ligne.prixUnitaire || 0);
       
       // Ajouter le prix des garnitures
       if (ligne.ligneGarnitures && Array.isArray(ligne.ligneGarnitures)) {
@@ -118,7 +118,8 @@ const HistoryBoulanger = () => {
 
   // ✅ Nouvelle fonction pour calculer le prix d'une ligne avec garnitures
   const getPrixLigne = (ligne) => {
-    let total = ligne.quantite * (ligne.produit?.prix || 0);
+    let total = ligne.quantite * (ligne.prixUnitaire || 0);
+
     
     // Ajouter le prix des garnitures
     if (ligne.ligneGarnitures && Array.isArray(ligne.ligneGarnitures)) {
@@ -537,7 +538,7 @@ const HistoryBoulanger = () => {
                                         {t('history.orderDetails.quantity', 'Quantité')}: {ligne.quantite}
                                       </div>
                                       <div className="text-sm font-medium text-amber-600">
-                                        {ligne.quantite} × {ligne.produit?.prix?.toFixed(2)} € = {(ligne.quantite * ligne.produit?.prix).toFixed(2)} €
+                                        {ligne.quantite} × {ligne.prixUnitaire?.toFixed(2)} € = {(ligne.quantite * ligne.prixUnitaire).toFixed(2)} €
                                         {/* ✅ Afficher le prix des garnitures si présentes */}
                                         {ligne.ligneGarnitures && ligne.ligneGarnitures.length > 0 && (
                                           <span className="text-gray-600 ml-2">

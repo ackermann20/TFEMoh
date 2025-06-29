@@ -315,6 +315,15 @@
   "erreurChargement": "Erreur lors du chargement des messages.",
   "de": "de",
   "objet": "Objet",
+  "produitsIndisponibles": "Produits indisponibles",
+  "garnituresIndisponibles": "Garnitures indisponibles",
+  "produitsIndisponiblesMessage": "Les produits suivants sont indisponibles et n’ont pas été ajoutés :",
+  "garnituresIndisponiblesMessage": "Les garnitures suivantes sont indisponibles et n’ont pas été ajoutées :"
+,
+"pain": "Pain",
+  "garnitures": "Garnitures",
+  "prixUnitaire": "Prix unitaire",
+  "total": "Total",
 
   "products": {
     "title": "Gestion des Produits",

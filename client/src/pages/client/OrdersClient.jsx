@@ -138,36 +138,62 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
     }, 0);
   };
 
-  const remettreDansPanier = () => {
-    if (!selectedOrder?.ligneCommandes) return;
+ const remettreDansPanier = () => {
+  if (!selectedOrder?.ligneCommandes) return;
 
-    selectedOrder.ligneCommandes.forEach(item => {
-      const produit = item.produit;
-      if (!produit) return;
+  let articlesIndisponibles = [];
+  let garnituresIndisponibles = [];
 
-      const article = {
-        id: produit.id,
-        nom: getNomProduit(item),
-        prix: item.prixUnitaire,
-        type: produit.type,
-        image: produit.image,
-        garnitures: item.ligneGarnitures?.map(g => ({
-          id: g.garniture?.id,
-          nom: g.garniture?.nom,
-          prix: g.garniture?.prix
-        })) || [],
-        isSandwich: produit.type === 'sandwich',
-        // Ajouter le type de pain s'il existe
-        typePain: item.typePain || 'blanc'
-      };
+  selectedOrder.ligneCommandes.forEach(item => {
+    const produit = item.produit;
+    if (!produit) return;
 
-      for (let i = 0; i < item.quantite; i++) {
-        addToCart(article);
+    if (produit.disponible === false) {
+      articlesIndisponibles.push(getNomProduit(item));
+      return;
+    }
+
+    // ✅ Filtrer les garnitures indisponibles
+    const garnituresDisponibles = (item.ligneGarnitures || []).filter(g => {
+      if (g.garniture?.disponible === false) {
+        garnituresIndisponibles.push(g.garniture.nom);
+        return false;
       }
-    });
+      return true;
+    }).map(g => ({
+      id: g.garniture?.id,
+      nom: g.garniture?.nom,
+      prix: g.garniture?.prix
+    }));
 
-    navigate('/cart');
-  };
+    const article = {
+      id: produit.id,
+      nom: getNomProduit(item),
+      prix: item.prixUnitaire,
+      type: produit.type,
+      image: produit.image,
+      garnitures: garnituresDisponibles,
+      isSandwich: produit.type === 'sandwich',
+      typePain: item.typePain || 'blanc'
+    };
+
+    for (let i = 0; i < item.quantite; i++) {
+      addToCart(article);
+    }
+  });
+
+  if (articlesIndisponibles.length > 0) {
+    alert(`⚠️ Les produits suivants sont indisponibles et n'ont pas été ajoutés au panier :\n- ${articlesIndisponibles.join('\n- ')}`);
+  }
+
+  if (garnituresIndisponibles.length > 0) {
+    alert(`⚠️ Les garnitures suivantes sont indisponibles et n'ont pas été ajoutées :\n- ${garnituresIndisponibles.join('\n- ')}`);
+  }
+
+  navigate('/cart');
+};
+
+
 
 const annulerCommande = async () => {
   if (!selectedOrder || selectedOrder.statut !== 'en attente') return;

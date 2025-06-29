@@ -295,6 +295,15 @@
   "erreurChargement": "Fout bij het laden van de berichten.",
   "de": "van",
   "objet": "Onderwerp",
+  "pain": "Brood",
+  "garnitures": "Toppings",
+  "prixUnitaire": "Stukprijs",
+  "total": "Totaal"
+,
+  "produitsIndisponibles": "Niet-beschikbare producten",
+  "garnituresIndisponibles": "Niet-beschikbare toppings",
+  "produitsIndisponiblesMessage": "De volgende producten zijn niet beschikbaar en werden niet toegevoegd:",
+  "garnituresIndisponiblesMessage": "De volgende toppings zijn niet beschikbaar en werden niet toegevoegd:",
   
   "products": {
     "title": "Productbeheer",
